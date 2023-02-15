@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Captcha Generator</title>
     <link rel="stylesheet" href="style.css" />
-    <script src="index.js"></script>
+    <script src="init.js"></script>
   </head>
   <body>
     <div class="container">
@@ -28,5 +28,6 @@
       <div><input type="button" value="Submit" onclick="validateCaptcha()"/></div>
       <div id="errCaptcha" class="errmsg"></div>
     </div>
+    <script>initCanvas(400,600);</script>
   </body>
 </html>
