@@ -10,12 +10,9 @@
   <body>
     <div class="container">
       <div id="captcha" class="captcha">
-        <script>
-          createCaptcha();
-        </script>
       </div>
       <div class="restart">
-        <a href="#" onclick="createCaptcha()">Change</a>
+        <a href="#" onclick="createGotcha()">Change</a>
       </div>
       <div class="input">
         <input
@@ -25,9 +22,8 @@
           placeholder="Type The Captcha"
         />
       </div>
-      <div><input type="button" value="Submit" onclick="validateCaptcha()"/></div>
+      <div><input type="button" value="Submit" onclick="initCanvas(800,800)"/></div>
       <div id="errCaptcha" class="errmsg"></div>
     </div>
-    <script>initCanvas(400,600);</script>
   </body>
 </html>
