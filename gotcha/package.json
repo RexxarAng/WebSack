@@ -1,0 +1,19 @@
+{
+  "name": "gotcha",
+  "version": "1.0.0",
+  "description": "ICT Web Security Project. Cognitive, personalized CAPTCHA POC.",
+  "main": "init.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/YeongJK98/ICT2206.git"
+  },
+  "author": "Websack Team",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/YeongJK98/ICT2206/issues"
+  },
+  "homepage": "https://github.com/YeongJK98/ICT2206#readme"
+}
