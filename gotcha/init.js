@@ -1,32 +1,41 @@
-let captcha = new Array();
+const cw = 600;
+const ch = 800;
 
 /**
- *
+ * Initialize Pop-up window for Gotcha.
  * @param {*} cw : Number specifying canvas width
  * @param {*} ch : Number specifyng canvas height
  */
-function initCanvas(cw, ch) {
-  // Create a new window with the specified dimensions
-  const canvasWindow = window.open(
+function initPopUpWindow(cw, ch) {
+  const popUpWindow = window.open(
     "",
-    "Canvas Window",
-    `width=${cw - 100}, height=${ch}`
+    "Gotcha Window",
+    `width=${cw + 100}, height=${ch}`
   );
+  return popUpWindow
+}
+
+/**
+ * Initialize registration of user Gotcha.
+ */
+function initRegister() {
+  // Create a new window with the specified dimensions
+  const gotchaWindow = initPopUpWindow(cw, ch)
 
   // Create a container div for the text input
-  const textcontainer = canvasWindow.document.createElement("div");
+  const textcontainer = gotchaWindow.document.createElement("div");
   textcontainer.style.display = "flex";
   textcontainer.style.flexDirection = "row";
   textcontainer.style.alignItems = "center";
 
   // Create a container div for the canvas input
-  const canvacontainer = canvasWindow.document.createElement("div");
+  const canvacontainer = gotchaWindow.document.createElement("div");
   canvacontainer.style.display = "flex";
   canvacontainer.style.flexDirection = "row";
   canvacontainer.style.alignItems = "center";
 
   // Create a canvas element and set its width and height
-  const canvas = canvasWindow.document.createElement("canvas");
+  const canvas = gotchaWindow.document.createElement("canvas");
   canvas.width = cw;
   canvas.height = ch;
 
@@ -59,20 +68,20 @@ function initCanvas(cw, ch) {
    */
 
   // Create a text input element for editing
-  const textBox = canvasWindow.document.createElement("input");
-  textBox.type = "text";
-  textBox.style.marginLeft = "10px";
-  textBox.style.marginRight = "10px";
-  textBox.style.flex = "1";
-  textBox.style.padding = "10px";
-  textBox.style.fontSize = "20px";
-  textBox.style.border = "2px solid black";
+  const aP = gotchaWindow.document.createElement("input");
+  aP.type = "text";
+  aP.style.marginLeft = "10px";
+  aP.style.marginRight = "10px";
+  aP.style.flex = "1";
+  aP.style.padding = "10px";
+  aP.style.fontSize = "20px";
+  aP.style.border = "2px solid black";
 
   // Add the text input element to the container
-  textcontainer.appendChild(textBox);
+  textcontainer.appendChild(aP);
 
   // Create a submit button
-  const submitButton = canvasWindow.document.createElement("button");
+  const submitButton = gotchaWindow.document.createElement("button");
   submitButton.textContent = "Submit";
   submitButton.style.padding = "10px";
   submitButton.style.fontSize = "20px";
@@ -81,33 +90,35 @@ function initCanvas(cw, ch) {
   // Add an event listener for the submit button
   submitButton.addEventListener("click", function () {
     // Get the contents of the text input and display an alert
-    const text = textBox.value;
-    alert(`Submitted: ${text}`);
+    var text = aP.value;
+    var imageData = canvas.toDataURL();
+    registerGotcha(imageData,text)
+    alert(`Submitted: ${imageData}`);
   });
 
   // Add the submit button to the container
   textcontainer.appendChild(submitButton);
 
   // Create a clear button
-  const clearButton = canvasWindow.document.createElement('button');
-  clearButton.textContent = 'Clear';
-  clearButton.style.display = 'block';
-  clearButton.style.float = 'left';
-  clearButton.style.margin = '8px 8px 0 0';
-  clearButton.style.width = '64px';
-  clearButton.style.height = '29px';
-  clearButton.style.border = 'none';
-  clearButton.style.borderBottom = '1px solid #BBB';
-  clearButton.style.borderRadius = '6px';
-  clearButton.style.backgroundColor = '#EEE';
-  clearButton.style.backgroundRepeat = 'repeat-x';
-  clearButton.style.padding = '6px 0 0 8px';
-  clearButton.style.color = '#999';
-  clearButton.style.fontWeight = 'bold';
-  clearButton.style.textShadow = '0px 1px 1px #fff';
+  const clearButton = gotchaWindow.document.createElement("button");
+  clearButton.textContent = "Clear";
+  clearButton.style.display = "block";
+  clearButton.style.float = "left";
+  clearButton.style.margin = "8px 8px 0 0";
+  clearButton.style.width = "64px";
+  clearButton.style.height = "29px";
+  clearButton.style.border = "none";
+  clearButton.style.borderBottom = "1px solid #BBB";
+  clearButton.style.borderRadius = "6px";
+  clearButton.style.backgroundColor = "#EEE";
+  clearButton.style.backgroundRepeat = "repeat-x";
+  clearButton.style.padding = "6px 0 0 8px";
+  clearButton.style.color = "#999";
+  clearButton.style.fontWeight = "bold";
+  clearButton.style.textShadow = "0px 1px 1px #fff";
 
   // Add an event listener for the clear button
-  clearButton.addEventListener('click', function() {
+  clearButton.addEventListener("click", function () {
     // Clear the canvas
     context.clearRect(0, 0, canvas.width, canvas.height);
   });
@@ -116,8 +127,8 @@ function initCanvas(cw, ch) {
   canvacontainer.appendChild(clearButton);
 
   // Add the container element to the new window
-  canvasWindow.document.body.appendChild(canvacontainer);
-  canvasWindow.document.body.appendChild(textcontainer);
+  gotchaWindow.document.body.appendChild(canvacontainer);
+  gotchaWindow.document.body.appendChild(textcontainer);
 
   /**
    * ! END OF CONTAINER
@@ -169,11 +180,21 @@ function initCanvas(cw, ch) {
   });
 }
 
-function createGotcha() {
-  initCanvas()
+function registerGotcha(imageData, promptText) {
+  initDB();
 }
-function validateGotcha() {}
+function initValidation() {
+  // Create a new window with the specified dimensions
+  const gotchaWindow = initPopUpWindow(cw, ch)
+  
+}
+function validateGotcha() {
+
+}
 function initDB() {}
+
+function validateForm() {}
+
 
 
 // function createGotcha() {
