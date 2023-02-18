@@ -1,0 +1,31 @@
+@media only screen and (max-width: 768px) {
+
+    /* Small devices (phones, 768px and below) */
+    .navbar-nav li a {
+        font-size: 12px;
+    }
+}
+
+@media only screen and (min-width: 769px) {
+
+    /* Medium devices (tablets, 769px and up) */
+    .navbar-nav li a {
+        font-size: 14px;
+    }
+}
+
+@media only screen and (min-width: 992px) {
+
+    /* Large devices (desktops, 992px and up) */
+    .navbar-nav li a {
+        font-size: 16px;
+    }
+}
+
+@media only screen and (min-width: 1200px) {
+
+    /* Extra large devices (large desktops, 1200px and up) */
+    .navbar-nav li a {
+        font-size: 18px;
+    }
+}
