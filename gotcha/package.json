@@ -2,9 +2,12 @@
   "name": "gotcha",
   "version": "1.0.0",
   "description": "ICT Web Security Project. Cognitive, personalized CAPTCHA POC.",
-  "main": "init.js",
+  "main": "server.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "browser": {
+    "./client.js": "./client-browser.js"
   },
   "repository": {
     "type": "git",

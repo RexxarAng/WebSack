@@ -107,8 +107,13 @@ function initRegister() {
     // Get the contents of the text input and display an alert
     var text = aP.value;
     var imageData = canvas.toDataURL();
-    initValidation(imageData, text);
-    // alert(`Submitted: ${imageData}`);
+    fetch("/rg", {
+      method: "POST",
+      body: JSON.stringify({ image: imageData, answer: text }),
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
   });
 
   // Add the submit button to the container
@@ -194,14 +199,7 @@ function initRegister() {
     }
   });
 }
-/**
- *
- * @param {*} gcRImage
- * @param {*} gcRAns
- */
-function registerGotcha(gcRImage, gcRAns) {
-  initDB();
-}
+
 /**
  * Initialize validation of current user Gotcha.
  * @param {string} gcVImage
@@ -255,10 +253,13 @@ function initValidation(gcVImage, gcVAns) {
   submitButton.addEventListener("click", function () {
     // Get the contents of the text input and display an alert
     var text = aP.value;
-    if (validateGotcha(gcVAns, text)) {
-      alert(`Wrong answer!`);
-    };
-    alert(`Correct answer!`);
+    fetch("/vg", {
+      method: "POST",
+      body: JSON.stringify({ answer: text }),
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
   });
 
   // Add the submit button to the container
@@ -273,16 +274,5 @@ function initValidation(gcVImage, gcVAns) {
    * ! END OF CONTAINER
    */
 }
-/**
- * Validate Gotcha challenge response from user.
- * @param {string} gcVAns
- * @param {string} gcVInput
- * @returns {boolean}
- */
-function validateGotcha(gcVAns, gcVInput) {
-  if (gcVAns == gcVInput) {
-    return true
-  }
-  return false
-}
+
 function validateForm() {}
