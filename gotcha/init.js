@@ -1,10 +1,18 @@
-const cw = 600;
-const ch = 800;
+// const mongoose = require("mongoose");
+// const mysql = require("mysql");
+// const sql = require("mssql");
+// const { Client } = require("pg");
+// const sqlite3 = require("sqlite3").verbose();
+
+// Global variables
+let cw = 600;
+let ch = 800;
 
 /**
  * Initialize Pop-up window for Gotcha.
- * @param {*} cw : Number specifying canvas width
- * @param {*} ch : Number specifyng canvas height
+ * @param {Int} cw : Number specifying canvas width
+ * @param {Int} ch : Number specifyng canvas height
+ * @returns {Window}
  */
 function initPopUpWindow(cw, ch) {
   const popUpWindow = window.open(
@@ -12,27 +20,30 @@ function initPopUpWindow(cw, ch) {
     "Gotcha Window",
     `width=${cw + 100}, height=${ch}`
   );
-  return popUpWindow
+  return popUpWindow;
 }
-
+/**
+ * Initialize containers for window.
+ * @param {Window} win : Number specifying canvas width
+ * @returns {HTMLDivElement}
+ */
+function initContainer(win) {
+  const container = win.document.createElement("div");
+  container.style.display = "flex";
+  container.style.flexDirection = "row";
+  container.style.alignItems = "center";
+  return container;
+}
 /**
  * Initialize registration of user Gotcha.
  */
 function initRegister() {
   // Create a new window with the specified dimensions
-  const gotchaWindow = initPopUpWindow(cw, ch)
+  const gotchaWindow = initPopUpWindow(cw, ch);
 
-  // Create a container div for the text input
-  const textcontainer = gotchaWindow.document.createElement("div");
-  textcontainer.style.display = "flex";
-  textcontainer.style.flexDirection = "row";
-  textcontainer.style.alignItems = "center";
-
-  // Create a container div for the canvas input
-  const canvacontainer = gotchaWindow.document.createElement("div");
-  canvacontainer.style.display = "flex";
-  canvacontainer.style.flexDirection = "row";
-  canvacontainer.style.alignItems = "center";
+  // Create container divs for the text and canvas input
+  const textcontainer = initContainer(gotchaWindow);
+  const canvacontainer = initContainer(gotchaWindow);
 
   // Create a canvas element and set its width and height
   const canvas = gotchaWindow.document.createElement("canvas");
@@ -70,12 +81,12 @@ function initRegister() {
   // Create a text input element for editing
   const aP = gotchaWindow.document.createElement("input");
   aP.type = "text";
-  aP.style.marginLeft = "10px";
-  aP.style.marginRight = "10px";
+  aP.style.margin = "20px 0px";
   aP.style.flex = "1";
   aP.style.padding = "10px";
   aP.style.fontSize = "20px";
-  aP.style.border = "2px solid black";
+  aP.style.border = "2px solid #ddd";
+  aP.placeholder = "Type your answer here";
 
   // Add the text input element to the container
   textcontainer.appendChild(aP);
@@ -85,15 +96,19 @@ function initRegister() {
   submitButton.textContent = "Submit";
   submitButton.style.padding = "10px";
   submitButton.style.fontSize = "20px";
-  submitButton.style.border = "2px solid black";
+  submitButton.style.color = "#fff";
+  submitButton.style.backgroundColor = "#2196f3";
+  submitButton.style.border = "none";
+  submitButton.style.borderRadius = "5px";
+  submitButton.style.cursor = "pointer";
 
   // Add an event listener for the submit button
   submitButton.addEventListener("click", function () {
     // Get the contents of the text input and display an alert
     var text = aP.value;
     var imageData = canvas.toDataURL();
-    registerGotcha(imageData,text)
-    alert(`Submitted: ${imageData}`);
+    initValidation(imageData, text);
+    // alert(`Submitted: ${imageData}`);
   });
 
   // Add the submit button to the container
@@ -179,51 +194,95 @@ function initRegister() {
     }
   });
 }
-
-function registerGotcha(imageData, promptText) {
+/**
+ *
+ * @param {*} gcRImage
+ * @param {*} gcRAns
+ */
+function registerGotcha(gcRImage, gcRAns) {
   initDB();
 }
-function initValidation() {
+/**
+ * Initialize validation of current user Gotcha.
+ * @param {string} gcVImage
+ * @param {string} gcVAns
+ */
+function initValidation(gcVImage, gcVAns) {
+  // Retrieve corresponding image and prompt from server's DB
+
   // Create a new window with the specified dimensions
-  const gotchaWindow = initPopUpWindow(cw, ch)
-  
-}
-function validateGotcha() {
+  const gotchaWindow = initPopUpWindow(cw, ch);
 
-}
-function initDB() {}
+  // Create container divs for the text and canvas input
+  const textcontainer = initContainer(gotchaWindow);
+  const canvacontainer = initContainer(gotchaWindow);
 
+  /**
+   * ! START OF CONTAINER
+   */
+
+  const img = gotchaWindow.document.createElement("img");
+  img.src = gcVImage;
+  img.style.width = "100%";
+  img.style.height = "auto";
+  // Add the img input element to the container
+  canvacontainer.appendChild(img);
+
+  // Create a text input element for editing
+  const aP = gotchaWindow.document.createElement("input");
+  aP.type = "text";
+  aP.style.margin = "20px 0px";
+  aP.style.flex = "1";
+  aP.style.padding = "10px";
+  aP.style.fontSize = "20px";
+  aP.style.border = "2px solid #ddd";
+  aP.placeholder = "Type your answer here";
+  // Add the text input element to the container
+  textcontainer.appendChild(aP);
+
+  // Create a submit button
+  const submitButton = gotchaWindow.document.createElement("button");
+  submitButton.textContent = "Submit";
+  submitButton.style.padding = "10px";
+  submitButton.style.fontSize = "20px";
+  submitButton.style.color = "#fff";
+  submitButton.style.backgroundColor = "#2196f3";
+  submitButton.style.border = "none";
+  submitButton.style.borderRadius = "5px";
+  submitButton.style.cursor = "pointer";
+
+  // Add an event listener for the submit button
+  submitButton.addEventListener("click", function () {
+    // Get the contents of the text input and display an alert
+    var text = aP.value;
+    if (validateGotcha(gcVAns, text)) {
+      alert(`Wrong answer!`);
+    };
+    alert(`Correct answer!`);
+  });
+
+  // Add the submit button to the container
+  textcontainer.appendChild(submitButton);
+
+  // Add the container element to the new window
+  gotchaWindow.document.body.style.textAlign = "center";
+  gotchaWindow.document.body.appendChild(canvacontainer);
+  gotchaWindow.document.body.appendChild(textcontainer);
+
+  /**
+   * ! END OF CONTAINER
+   */
+}
+/**
+ * Validate Gotcha challenge response from user.
+ * @param {string} gcVAns
+ * @param {string} gcVInput
+ * @returns {boolean}
+ */
+function validateGotcha(gcVAns, gcVInput) {
+  if (gcVAns == gcVInput) {
+    return true
+  }
+  return false
+}
 function validateForm() {}
-
-
-
-// function createGotcha() {
-//     const activeCaptcha = document.getElementById("captcha");
-//     for (q = 0; q < 6; q++) {
-//       if (q % 2 == 0) {
-//         captcha[q] = String.fromCharCode(Math.floor(Math.random() * 26 + 65));
-//       } else {
-//         captcha[q] = Math.floor(Math.random() * 10 + 0);
-//       }
-//     }
-//     theCaptcha = captcha.join("");
-//     activeCaptcha.innerHTML = `${theCaptcha}`;
-//   }
-//   function validateGotcha() {
-//     const errCaptcha = document.getElementById("errCaptcha");
-//     const reCaptcha = document.getElementById("reCaptcha");
-//     recaptcha = reCaptcha.value;
-//     let validateCaptcha = 0;
-//     for (var z = 0; z < 6; z++) {
-//       if (recaptcha.charAt(z) != captcha[z]) {
-//         validateCaptcha++;
-//       }
-//     }
-//     if (recaptcha == "") {
-//       errCaptcha.innerHTML = "Re-Captcha must be filled";
-//     } else if (validateCaptcha > 0 || recaptcha.length > 6) {
-//       errCaptcha.innerHTML = "Wrong captcha";
-//     } else {
-//       errCaptcha.innerHTML = "Done";
-//     }
-//   }
