@@ -53,6 +53,18 @@
                         </div>
                         <button type="submit" class="btn btn-primary">Submit</button>
                     </form>
+                     <!-- Modal template -->
+                    <ng-template #signupSuccessModal let-modal>
+                        <div class="modal-header">
+                        <h4 class="modal-title">Sign up successful!</h4>
+                        <button type="button" class="close" aria-label="Close" [routerLink]="['/login']" (click)="modal.dismiss()">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                        </div>
+                        <div class="modal-body">
+                        <p>Congratulations, your sign up was successful!</p>
+                        </div>
+                    </ng-template>
                 </div>
             </div>
         </div>

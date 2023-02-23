@@ -1,5 +1,6 @@
 import { Component } from '@angular/core';
 import { NgForm } from '@angular/forms';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-login',
@@ -7,32 +8,31 @@ import { NgForm } from '@angular/forms';
   styleUrls: ['./login.component.css']
 })
 export class LoginComponent {
-  email: string = '';
-  password: string = '';
   loginError = false;
   signInData: any = {};
 
+  constructor(private router: Router) {}
 
   onSubmit(form: NgForm) {
-
-
     if (form.valid) {
       this.loginError = false
-      this.signInData = {
-        email: this.email,
-        password: this.password
-      };
+      console.log(this.signInData);
       console.log('Form submitted!');
       console.log(this.signInData);
-
-      if (this.email !== 'test' || this.password !== '12345') {
+      var success = false;
+      if (this.signInData.email == "rex@gmail.com") {
+        success = true;
+      } else {
+        success = false;
+      }
+      if (!success) {
         this.loginError = true;
       } else {
         // If the login succeeds, we'll clear the error message and
         // navigate to the user's dashboard.
         this.loginError = false;
         // Use your preferred routing method here, such as Angular Router or window.location.
-        window.location.href = '/dashboard';
+        this.router.navigate(['']);
       }
     } else {
       this.loginError = true
