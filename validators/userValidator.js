@@ -1,3 +1,5 @@
+const fs = require('fs');
+
 function validateEmail(email) {
     const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     return re.test(String(email).toLowerCase());
@@ -8,4 +10,9 @@ function validatePassword(password) {
     return re.test(password);
 }
 
-module.exports = { validateEmail, validatePassword };
+function validateDataUrl(dataUrl) {
+    const re = /^data:image\/([\w+]+);base64,([\s\S]+)/;
+    return re.test(dataUrl);
+}
+
+module.exports = { validateEmail, validatePassword, validateDataUrl };

@@ -8,16 +8,16 @@
                 <div class="card-body">
                     <form (ngSubmit)="onSubmit(signupForm)" #signupForm="ngForm">
                         <div class="form-group">
-                            <label for="name">Name</label>
-                            <input type="text" class="form-control" id="name" name="name" [(ngModel)]="formData.name"
-                                required minlength="2" #name="ngModel"
-                                [class.is-invalid]="signupForm.submitted && name.invalid">
-                            <div *ngIf="signupForm.submitted && name.invalid" class="invalid-feedback">
-                                <div *ngIf="name.errors?.['required']" style="color: red">
-                                    Name is required
+                            <label for="username">Username</label>
+                            <input type="text" class="form-control" id="username" name="username"
+                                [(ngModel)]="formData.username" required minlength="2" #username="ngModel"
+                                [class.is-invalid]="signupForm.submitted && username.invalid">
+                            <div *ngIf="signupForm.submitted && username.invalid" class="invalid-feedback">
+                                <div *ngIf="username.errors?.['required']" class="text-danger">
+                                    Username is required
                                 </div>
-                                <div *ngIf="name.errors?.['minlength']" style="color: red">
-                                    Name must be at least 2 characters long
+                                <div *ngIf="username.errors?.['minlength']" class="text-danger">
+                                    Username must be at least 6 characters long
                                 </div>
                             </div>
                         </div>
@@ -27,10 +27,10 @@
                                 [(ngModel)]="formData.email" required email #email="ngModel"
                                 [class.is-invalid]="signupForm.submitted && email.invalid">
                             <div *ngIf="signupForm.submitted && email.invalid" class="invalid-feedback">
-                                <div *ngIf="email.errors?.['required']" style="color: red">
+                                <div *ngIf="email.errors?.['required']" class="text-danger">
                                     Email is required
                                 </div>
-                                <div *ngIf="email.errors?.['email']" style="color: red">
+                                <div *ngIf="email.errors?.['email']" class="text-danger">
                                     Invalid email format
                                 </div>
                             </div>
@@ -42,20 +42,31 @@
                                 pattern="(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*\W)[a-zA-Z0-9\S]{8,}" #password="ngModel"
                                 [class.is-invalid]="signupForm.submitted && password.invalid">
                             <div *ngIf="signupForm.submitted && password.invalid" class="invalid-feedback">
-                                <div *ngIf="password.errors?.['required']" style="color: red">
+                                <div *ngIf="password.errors?.['required']" class="text-danger">
                                     Password is required
                                 </div>
-                                <div *ngIf="password.errors?.['pattern']" style="color: red">
+                                <div *ngIf="password.errors?.['pattern']" class="text-danger">
                                     Password should be at least 8 characters long and contain at least one uppercase
                                     letter, one lowercase letter, one number, and one symbol
                                 </div>
                             </div>
                         </div>
                         <div class="form-group">
-                            <button class="btn btn-secondary" (click)="showSignatureModal()">Add Signature</button>
+                            <div class="d-flex align-items-center">
+                                <div class="d-flex align-items-center">
+                                    <button class="btn btn-secondary mr-4" [ngClass]="{'btn-danger': !signatureDataUrl}"
+                                        (click)="showSignatureModal()">Add Signature</button>
+                                    <div *ngIf="!signatureDataUrl" class="text-danger ml-4">
+                                        Please add your signature
+                                    </div>
+                                    <div *ngIf="signatureDataUrl" class="text-success ml-4">
+                                        Signature Added
+                                    </div>
+                                </div>
+                            </div>
                         </div>
 
-                        <button type="submit" class="btn btn-primary">Submit</button>
+                        <button type=" submit" class="btn btn-primary">Submit</button>
                     </form>
                     <!-- Modal template -->
                     <ng-template #signatureModal let-modal>
@@ -67,7 +78,7 @@
                                 </button>
                             </div>
                             <div class="modal-body">
-                                <app-signaturepad
+                                <app-signaturepad (closeModalEvent)="closeModal()"
                                     (signatureDataUrlEmitter)="handleSignatureDataUrl($event)"></app-signaturepad>
                             </div>
                         </div>

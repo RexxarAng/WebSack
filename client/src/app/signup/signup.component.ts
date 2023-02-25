@@ -1,4 +1,4 @@
-import { Component, ElementRef, ViewChild } from '@angular/core';
+import { Component, ElementRef, ViewChild, Output, EventEmitter } from '@angular/core';
 import { NgForm } from '@angular/forms'
 import { UserService } from '../services/user.service'
 import { Router } from '@angular/router'
@@ -12,6 +12,7 @@ import { SignaturepadComponent } from '../signaturepad/signaturepad.component'
   styleUrls: ['./signup.component.css']
 })
 export class SignupComponent {
+  @Output() closeModalEvent = new EventEmitter<void>();
 
   @ViewChild('signupSuccessModal') signupSuccessModal!: ElementRef;
   @ViewChild('signatureModal') signatureModal!: ElementRef;
@@ -36,6 +37,10 @@ export class SignupComponent {
     this.modalService.open(this.signatureModal);
   }
 
+  closeModal() {
+    this.modalService.dismissAll();
+  }
+
   handleSignatureDataUrl(dataUrl: string) {
     this.signatureDataUrl = dataUrl;
     console.log(this.signatureDataUrl); // log the dataURL in the console
@@ -45,7 +50,13 @@ export class SignupComponent {
   onSubmit(form: NgForm) {
     if (form.valid) {
       console.log(this.formData);
-      this.userService.signUp(this.formData)
+      var userData = {
+        username: this.formData.username,
+        email: this.formData.email,
+        password: this.formData.password,
+        dataUrl: this.signatureDataUrl
+      };
+      this.userService.signUp(userData)
       .subscribe((response: any) => {
         console.log(response)
         if (response.success) {

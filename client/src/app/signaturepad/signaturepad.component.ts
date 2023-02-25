@@ -11,6 +11,8 @@ export class SignaturepadComponent {
   signaturePad!: SignaturePad;
 
   @Output() signatureDataUrlEmitter = new EventEmitter<string>();
+  @Output() closeModalEvent = new EventEmitter<void>();
+
 
   signatureDataUrl: string = ""; 
 
@@ -28,6 +30,7 @@ export class SignaturepadComponent {
   saveSignature() {
     this.signatureDataUrl = this.signaturePad.toDataURL(); // get the signature data URL
     this.signatureDataUrlEmitter.emit(this.signatureDataUrl); // emit the dataURL as an event
+    this.closeModalEvent.emit();
   }
 
 }

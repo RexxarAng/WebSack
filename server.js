@@ -69,7 +69,10 @@ https.createServer(options, app).listen(443, () => {
   console.log('Listening on port 443');
 });
 
-
+// Host locally webserver
+// app.listen(3000, () => {
+//   console.log(`Example app listening on port ${port}`)
+// })
 
 
 
