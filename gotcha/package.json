@@ -1,13 +1,12 @@
 {
-  "name": "gotcha",
+  "name": "@websack/gotcha",
+  "main": "lib/client.js",
+  "types": "lib/client.d.ts",
   "version": "1.0.0",
   "description": "ICT Web Security Project. Cognitive, personalized CAPTCHA POC.",
-  "main": "server.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
-  "browser": {
-    "./client.js": "./client-browser.js"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "tsc"
   },
   "repository": {
     "type": "git",
@@ -18,5 +17,15 @@
   "bugs": {
     "url": "https://github.com/YeongJK98/ICT2206/issues"
   },
-  "homepage": "https://github.com/YeongJK98/ICT2206#readme"
+  "homepage": "https://github.com/YeongJK98/ICT2206#readme",
+  "dependencies": {
+    "@angular/animations": "^15.2.0",
+    "@angular/cdk": "^15.2.0",
+    "@angular/core": "^15.2.0",
+    "@angular/material": "^15.2.0",
+    "signature_pad": "^4.1.5"
+  },
+  "devDependencies": {
+    "typescript": "^4.9.5"
+  }
 }
