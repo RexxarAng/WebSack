@@ -1,0 +1,10 @@
+<canvas #signaturePad class="signature-pad"></canvas>
+<div class="d-flex justify-content-center align-items-center">
+    <div class="border rounded p-3">
+        <canvas #signaturePadCanvas class="border"></canvas>
+        <div class="d-flex justify-content-between mt-3">
+            <button class="btn btn-secondary mr-2" (click)="clearSignature()">Clear</button>
+            <button class="btn btn-primary" (click)="saveSignature()">Save</button>
+        </div>
+    </div>
+</div>

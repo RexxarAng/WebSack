@@ -10,7 +10,7 @@ import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { HttpClientModule } from '@angular/common/http';
 import { environment } from './environments/environment';
 import { SignaturepadComponent } from './signaturepad/signaturepad.component';
-import { hello } from '@websack/gotcha';
+import { SignaturePadComponent  } from '@websack/gotcha';
 
 @NgModule({
   declarations: [
@@ -18,7 +18,7 @@ import { hello } from '@websack/gotcha';
     HomeComponent,
     LoginComponent,
     SignupComponent,
-    SignaturepadComponent
+    SignaturepadComponent,
   ],
   imports: [
     BrowserModule,
@@ -26,7 +26,8 @@ import { hello } from '@websack/gotcha';
     ReactiveFormsModule,
     AppRoutingModule,
     NgbModule,
-    HttpClientModule
+    HttpClientModule,
+    // SignaturePadComponent
   ],
   providers: [
     { provide: 'API_URL', useValue: environment.apiUrl }

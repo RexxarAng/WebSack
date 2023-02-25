@@ -3,15 +3,14 @@ import { NgForm } from '@angular/forms'
 import { UserService } from '../services/user.service'
 import { Router } from '@angular/router'
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
-import { SignaturepadComponent } from '../signaturepad/signaturepad.component'
-
-
+import { SignaturePadComponent } from '@websack/gotcha';
 @Component({
   selector: 'app-signup',
   templateUrl: './signup.component.html',
   styleUrls: ['./signup.component.css']
 })
 export class SignupComponent {
+
   @Output() closeModalEvent = new EventEmitter<void>();
 
   @ViewChild('signupSuccessModal') signupSuccessModal!: ElementRef;
@@ -21,8 +20,7 @@ export class SignupComponent {
   constructor(
     private userService: UserService, 
     private router: Router,
-    private modalService: NgbModal
-
+    private modalService: NgbModal,
   ) {  }
 
   showSignaturePad = true;
@@ -32,9 +30,11 @@ export class SignupComponent {
   isNameValid: boolean = true;
   isEmailValid: boolean = true;
   isPasswordValid: boolean = true;
+  
 
   showSignatureModal() {
-    this.modalService.open(this.signatureModal);
+    
+    // this.modalService.open(this.signatureModal);
   }
 
   closeModal() {
