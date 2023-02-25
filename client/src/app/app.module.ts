@@ -9,13 +9,15 @@ import { SignupComponent } from './signup/signup.component';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { HttpClientModule } from '@angular/common/http';
 import { environment } from './environments/environment';
+import { SignaturepadComponent } from './signaturepad/signaturepad.component';
 
 @NgModule({
   declarations: [
     AppComponent,
     HomeComponent,
     LoginComponent,
-    SignupComponent
+    SignupComponent,
+    SignaturepadComponent
   ],
   imports: [
     BrowserModule,
