@@ -7,7 +7,6 @@ const bodyParser = require('body-parser');
 const path = require('path');
 const mongoose = require('mongoose');
 const mongoSanitize = require('express-mongo-sanitize');
-// const helmet = require('helmet');
 const crypto = require('crypto');
 const apiRoute = require('./routes/apiRoute');
 
@@ -20,29 +19,13 @@ app.use(cors());
 // Parse application/json
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({extended: true}));
-app.use(sslify.HTTPS({trustProtoHeader: true}));
 
 // Prevent nosql injection
 app.use(mongoSanitize({replaceWith: '_'}));
 
-app.use((req, res, next) => {
-  res.setHeader('Content-Security-Policy', 'default-src \'self\'');
-  next();
-});
-
-const certPath =
-    '/etc/letsencrypt/live/websack.eloquent-jennings.cloud/fullchain.pem';
-const keyPath =
-    '/etc/letsencrypt/live/websack.eloquent-jennings.cloud/privkey.pem';
-
-const options = {
-  key: fs.readFileSync(keyPath),
-  cert: fs.readFileSync(certPath)
-};
-
 mongoose.set('strictQuery', false);
 // Connect to MongoDB
-mongoose.connect('mongodb://localhost/WebSack', {useNewUrlParser: true});
+mongoose.connect('mongodb://127.0.0.1:27017/WebSack', {useNewUrlParser: true});
 
 const db = mongoose.connection;
 db.on('error', console.error.bind(console, 'connection error:'));
@@ -64,7 +47,6 @@ app.use('/WebSack/*', function(req, res) {
 // API Routes
 app.use('/api/', apiRoute);
 
-// Start the Express app
-https.createServer(options, app).listen(443, () => {
-  console.log('Listening on port 443');
-});
+// Host locally webserver
+const port = 3200;
+app.listen(port, () => {console.log(`Example app listening on port ${port}`)})
