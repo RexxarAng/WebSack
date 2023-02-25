@@ -7,10 +7,18 @@ import { HomeComponent } from './home/home.component';
 import { LoginComponent } from './login/login.component';
 import { SignupComponent } from './signup/signup.component';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
-import { HttpClientModule } from '@angular/common/http';
+import { HttpClientModule, HTTP_INTERCEPTORS } from '@angular/common/http';
 import { environment } from './environments/environment';
 import { SignaturepadComponent } from './signaturepad/signaturepad.component';
-import { hello } from '@websack/gotcha';
+import { AuthService } from "./services/auth.service";
+import { ProfileComponent } from './profile/profile.component';
+// import { hello } from '@websack/gotcha';
+import { JwtModule } from '@auth0/angular-jwt';
+import { JwtInterceptor } from './interceptors/jwt.interceptor';
+
+export function getToken() {
+  return sessionStorage.getItem('id_token');
+ }
 
 @NgModule({
   declarations: [
@@ -18,7 +26,8 @@ import { hello } from '@websack/gotcha';
     HomeComponent,
     LoginComponent,
     SignupComponent,
-    SignaturepadComponent
+    SignaturepadComponent,
+    ProfileComponent
   ],
   imports: [
     BrowserModule,
@@ -26,9 +35,18 @@ import { hello } from '@websack/gotcha';
     ReactiveFormsModule,
     AppRoutingModule,
     NgbModule,
-    HttpClientModule
+    HttpClientModule,
+    JwtModule.forRoot({
+      config: {
+        tokenGetter: getToken,
+        allowedDomains: ['https://websack.eloquent-jennings.cloud'],
+        disallowedRoutes: ['https://websack.eloquent-jennings.cloud/api/login']
+      }
+    })
   ],
   providers: [
+    { provide: HTTP_INTERCEPTORS, useClass: JwtInterceptor, multi: true },
+    AuthService,
     { provide: 'API_URL', useValue: environment.apiUrl }
   ],
   bootstrap: [AppComponent]

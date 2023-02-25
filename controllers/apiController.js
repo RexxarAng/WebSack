@@ -4,9 +4,10 @@ const userValidator = require('../validators/userValidator')
 const bcrypt = require('bcrypt')
 const fs = require('fs')
 const rimraf = require('rimraf')
+const config = require('../config/database')
+const jwt = require('jsonwebtoken');
 
-
-exports.signup = async (req, res) => {
+exports.signup = async (req, res, next) => {
     var { username, email, password, dataUrl } = req.body;
     if (!userValidator.validateEmail(email)) {
         return res.json({
@@ -69,17 +70,17 @@ exports.signup = async (req, res) => {
         console.log(`Saved image to ${filename}`);
     });
 
-    const salt = await bcrypt.genSalt(10);
-    password = await bcrypt.hash(password, salt);
+    // const salt = await bcrypt.genSalt(10);
+    // password = await bcrypt.hash(password, salt);
 
-    const userData = {
+    let newUser = new User({
         username: username,
         email: email,
         password: password,
         imgName: filename 
-    }
+    });
 
-    const newUser = User.create(userData, function(err, newUser) {
+    User.addUser(newUser, (err, user) => {
         if (err) {
             rimraf(`./uploads/users/${username}`, (err) => {
                 if (err) console.error('Error occurred during directory deletion:', err);
@@ -89,11 +90,62 @@ exports.signup = async (req, res) => {
                 success: false,
                 msg: err
             });
-        } 
-        
-        return res.json({
-            success: true,
-            msg: newUser
-        })
+        } else {
+            return res.json({
+                success: true,
+                msg: "User created successfully!"
+            })
+        }
+
     });
+};
+
+
+exports.authenticate = async (req, res, next) => {
+    const { username, password } = req.body;
+    console.log(req.body);
+    User.getUserByUsername(username, (err, user) => {
+        if (err) throw err;
+
+        if (!user) {
+            return res.json({
+                success: false,
+                msg: "Wrong username or password"
+            });
+        }
+
+        User.comparePassword(password, user.password, (err, isMatch) => {
+            if (err) throw err;
+
+            if (isMatch) {
+                const payload = {
+                    id: user._id,
+                    username: user.username,
+                    email: user.email
+                }
+                const token = jwt.sign(payload, config.secret, {
+                    expiresIn: 86400 // 24 hours
+                });
+                res.json({
+                    success: true,
+                    token: `JWT ${token}`,
+                    user: {
+                        id: user._id,
+                        username: user.username,
+                        email: user.email
+                    }
+                })
+            } else {
+                res.json({
+                    success: false,
+                    msg: "Wrong username or password"
+                })
+            }
+        });
+    });
+};
+
+
+exports.getProfile = async (req, res, next) => {
+    res.json({user: req.user});
 };

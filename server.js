@@ -10,8 +10,10 @@ const mongoSanitize = require('express-mongo-sanitize');
 // const helmet = require('helmet');
 const crypto = require('crypto');
 const apiRoute = require('./routes/apiRoute');
-
+const passport = require('passport');
 const app = express();
+const config = require("./config/database");
+const session = require('express-session');
 
 // app.use(helmet());
 app.use(cors());
@@ -20,15 +22,28 @@ app.use(cors());
 // Parse application/json
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({extended: true}));
+
+app.use(session({
+  secret: config.secret,
+  resave: false,
+  saveUninitialized: false
+}))
+
+// Passport Middleware
+app.use(passport.initialize());
+app.use(passport.session());
+
+require('./config/passport')(passport);
+
 app.use(sslify.HTTPS({trustProtoHeader: true}));
 
 // Prevent nosql injection
 app.use(mongoSanitize({replaceWith: '_'}));
 
-app.use((req, res, next) => {
-  res.setHeader('Content-Security-Policy', 'default-src \'self\'');
-  next();
-});
+// app.use((req, res, next) => {
+//   res.setHeader('Content-Security-Policy', 'default-src \'self\'');
+//   next();
+// });
 
 const certPath =
     '/etc/letsencrypt/live/websack.eloquent-jennings.cloud/fullchain.pem';
@@ -41,8 +56,9 @@ const options = {
 };
 
 mongoose.set('strictQuery', false);
+
 // Connect to MongoDB
-mongoose.connect('mongodb://localhost/WebSack', {useNewUrlParser: true});
+mongoose.connect(config.database, {useNewUrlParser: true});
 
 const db = mongoose.connection;
 db.on('error', console.error.bind(console, 'connection error:'));

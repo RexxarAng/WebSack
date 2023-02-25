@@ -2,25 +2,24 @@
     <div class="card-header">Please sign in</div>
     <div class="card-body">
         <form class="form-signin" (ngSubmit)="onSubmit(signInForm)" #signInForm="ngForm">
-            <label for="inputEmail" class="sr-only">Email address</label>
-            <input type="email" id="inputEmail" class="form-control mb-2" placeholder="Email address" required
-                [(ngModel)]="signInData.email" name="email" #emailInput="ngModel"
-                pattern="[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$"
-                [class.is-invalid]="signInForm.submitted && emailInput.invalid">
-            <div *ngIf="signInForm.submitted && emailInput.invalid" class="invalid-feedback">
-                <div *ngIf="emailInput.errors?.['required']" style="color: red">
+            <label for="username" class="sr-only">username</label>
+            <input type="username" id="username" class="form-control mb-2" placeholder="Username" required
+                [(ngModel)]="signInData.username" name="username" #username="ngModel"
+                [class.is-invalid]="signInForm.submitted && username.invalid">
+            <div *ngIf="signInForm.submitted && username.invalid" class="invalid-feedback">
+                <div *ngIf="username.errors?.['required']" style="color: red">
                     Email is required
                 </div>
-                <div *ngIf="emailInput.errors?.['pattern']" style="color: red">
+                <!-- <div *ngIf="email.errors?.['pattern']" style="color: red">
                     Invalid email format
-                </div>
+                </div> -->
             </div>
             <label for="inputPassword" class="sr-only">Password</label>
             <input type="password" id="inputPassword" class="form-control mb-2" placeholder="Password" required
-                [(ngModel)]="signInData.password" name="password" #passwordInput="ngModel"
-                [class.is-invalid]="signInForm.submitted && passwordInput.invalid">
-            <div *ngIf="signInForm.submitted && passwordInput.invalid" class="invalid-feedback mb-3">
-                <div *ngIf="passwordInput.errors?.['required']" style="color: red">
+                [(ngModel)]="signInData.password" name="password" #password="ngModel"
+                [class.is-invalid]="signInForm.submitted && password.invalid">
+            <div *ngIf="signInForm.submitted && password.invalid" class="invalid-feedback mb-3">
+                <div *ngIf="password.errors?.['required']" style="color: red">
                     Password is required
                 </div>
             </div>

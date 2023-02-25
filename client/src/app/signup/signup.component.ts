@@ -15,6 +15,7 @@ export class SignupComponent {
   @Output() closeModalEvent = new EventEmitter<void>();
 
   @ViewChild('signupSuccessModal') signupSuccessModal!: ElementRef;
+  @ViewChild('signupFailureModal') signupFailureModal!: ElementRef;
   @ViewChild('signatureModal') signatureModal!: ElementRef;
 
 
@@ -32,8 +33,10 @@ export class SignupComponent {
   isNameValid: boolean = true;
   isEmailValid: boolean = true;
   isPasswordValid: boolean = true;
+  message: string = "";
 
-  showSignatureModal() {
+  showSignatureModal(event: Event) {
+    event.preventDefault();
     this.modalService.open(this.signatureModal);
   }
 
@@ -65,6 +68,9 @@ export class SignupComponent {
             this.modalService.dismissAll();
             this.router.navigate(['login']);
           }, 5000);  //5s
+        } else {
+          this.message = response.msg;
+          this.modalService.open(this.signupFailureModal);
         }
       });
     }
