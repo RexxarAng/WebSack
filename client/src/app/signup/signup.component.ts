@@ -5,7 +5,6 @@ import { Router } from '@angular/router'
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { SignaturepadComponent } from '../signaturepad/signaturepad.component'
 
-
 @Component({
   selector: 'app-signup',
   templateUrl: './signup.component.html',
@@ -22,8 +21,7 @@ export class SignupComponent {
   constructor(
     private userService: UserService, 
     private router: Router,
-    private modalService: NgbModal
-
+    private modalService: NgbModal,
   ) {  }
 
   showSignaturePad = true;

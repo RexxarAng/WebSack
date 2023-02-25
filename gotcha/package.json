@@ -1,7 +1,7 @@
 {
   "name": "@websack/gotcha",
-  "main": "lib/client.js",
-  "types": "lib/client.d.ts",
+  "main": "lib/client.component.js",
+  "types": "lib/client.component.d.ts",
   "version": "1.0.0",
   "description": "ICT Web Security Project. Cognitive, personalized CAPTCHA POC.",
   "scripts": {
@@ -27,5 +27,8 @@
   },
   "devDependencies": {
     "typescript": "^4.9.5"
+  },
+  "publishConfig": {
+    "access": "public"
   }
 }

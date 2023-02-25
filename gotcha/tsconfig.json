@@ -17,10 +17,7 @@
     "forceConsistentCasingInFileNames": true,
     "outDir": "lib",
     "declaration": true,
-    "baseUrl": "./",
-    "paths": {
-      "@angular/*": ["node_modules/@angular/*"]
-    }
+    "baseUrl": "./"
   },
 
   "angularCompilerOptions": {
@@ -28,10 +25,9 @@
     "strictInjectionParameters": true,
     "strictTemplates": true
   },
+  "files": [
+    "src/client.component.ts"
+  ],
 
-  "include": ["src/**/*"],
-
-  "exclude": [
-    "node_modules"
-  ]
+  "include": ["src/**/*"]
 }
