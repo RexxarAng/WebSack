@@ -3,6 +3,7 @@ import { NgForm } from '@angular/forms'
 import { UserService } from '../services/user.service'
 import { Router } from '@angular/router'
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
+// import { GotchaComponent } from '@websack/gotcha';
 import { SignaturepadComponent } from '../signaturepad/signaturepad.component'
 
 @Component({

@@ -1,33 +1,38 @@
+/* To learn more about this file see: https://angular.io/config/tsconfig. */
 {
-  "$schema": "https://json.schemastore.org/tsconfig",
-  "display": "Node 18",
-
+  "compileOnSave": false,
   "compilerOptions": {
-    "module": "es2015",
-    "target": "es5",
-    "lib": [
-      "es2015",
-      "dom"
-    ],
+    "baseUrl": "./",
+    "outDir": "./dist/out-tsc",
+    "forceConsistentCasingInFileNames": true,
+    "strict": true,
+    "noImplicitOverride": true,
+    "paths": {
+      "gotcha": [
+        "dist/gotcha"
+      ]
+    },
+    "noPropertyAccessFromIndexSignature": true,
+    "noImplicitReturns": true,
+    "noFallthroughCasesInSwitch": true,
+    "sourceMap": true,
+    "declaration": false,
+    "downlevelIteration": true,
     "experimentalDecorators": true,
     "moduleResolution": "node",
-    "strict": true,
-    "esModuleInterop": true,
-    "skipLibCheck": true,
-    "forceConsistentCasingInFileNames": true,
-    "outDir": "lib",
-    "declaration": true,
-    "baseUrl": "./"
+    "importHelpers": true,
+    "target": "ES2022",
+    "module": "ES2022",
+    "useDefineForClassFields": false,
+    "lib": [
+      "ES2022",
+      "dom"
+    ]
   },
-
   "angularCompilerOptions": {
-    "enableIvy": true,
+    "enableI18nLegacyMessageIdFormat": false,
     "strictInjectionParameters": true,
+    "strictInputAccessModifiers": true,
     "strictTemplates": true
-  },
-  "files": [
-    "src/client.component.ts"
-  ],
-
-  "include": ["src/**/*"]
+  }
 }

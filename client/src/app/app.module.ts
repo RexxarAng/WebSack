@@ -12,7 +12,7 @@ import { environment } from './environments/environment';
 import { SignaturepadComponent } from './signaturepad/signaturepad.component';
 import { AuthService } from "./services/auth.service";
 import { ProfileComponent } from './profile/profile.component';
-// import { hello } from '@websack/gotcha';
+import { GotchaModule } from '@websack/gotcha';
 import { JwtModule } from '@auth0/angular-jwt';
 import { JwtInterceptor } from './interceptors/jwt.interceptor';
 
@@ -36,6 +36,7 @@ export function getToken() {
     AppRoutingModule,
     NgbModule,
     HttpClientModule,
+    GotchaModule,
     JwtModule.forRoot({
       config: {
         tokenGetter: getToken,

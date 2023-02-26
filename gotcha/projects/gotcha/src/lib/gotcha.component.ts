@@ -1,13 +1,12 @@
-export * from './client.component';
 import { Component, ViewChild, ElementRef, OnInit } from '@angular/core';
 import SignaturePad from 'signature_pad';
 
 @Component({
   selector: 'app-signature-pad',
-  templateUrl: `./client.component.html`,
+  templateUrl: `./gotcha.component.html`,
   styles: []
 })
-export class SignaturePadComponent implements OnInit {
+export class GotchaComponent implements OnInit {
   @ViewChild('signaturePadCanvas', { static: true }) canvas!: ElementRef;
 
   signaturePad!: SignaturePad;
