@@ -102,9 +102,10 @@ exports.signup = async (req, res, next) => {
 
 
 exports.authenticate = async (req, res, next) => {
-    const { username, password } = req.body;
+    const { username, password, dataUrl } = req.body;
+    console.log(dataUrl);
     console.log(req.body);
-    User.getUserByUsername(username, (err, user) => {
+    User.getUserByUsername(username, async (err, user) => {
         if (err) throw err;
 
         if (!user) {
@@ -114,7 +115,7 @@ exports.authenticate = async (req, res, next) => {
             });
         }
 
-        User.comparePassword(password, user.password, (err, isMatch) => {
+        User.comparePassword(password, user.password, async (err, isMatch) => {
             if (err) throw err;
 
             if (isMatch) {
