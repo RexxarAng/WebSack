@@ -1,10 +1,33 @@
-<canvas #signaturePad class="signature-pad"></canvas>
-<div class="d-flex justify-content-center align-items-center">
+<!-- <div class="d-flex justify-content-center align-items-center">
     <div class="border rounded p-3">
         <canvas #signaturePadCanvas class="border"></canvas>
         <div class="d-flex justify-content-between mt-3">
             <button class="btn btn-secondary mr-2" (click)="clearSignature()">Clear</button>
             <button class="btn btn-primary" (click)="saveSignature()">Save</button>
         </div>
+    </div>
+</div> -->
+<div class="d-flex justify-content-center align-items-center">
+    <div class="border rounded p-3">
+        <canvas #signaturePadCanvas class="border"></canvas>
+        <form (ngSubmit)="onSubmit(signupForm)" #signupForm="ngForm">
+            <div class="form-group mb-3">
+                <label for="ansKey">Answer Key</label>
+                <input type="text" class="form-control" id="ansKey" name="ansKey"
+                [(ngModel)]="gotchaData.ansKey" required minlength="1" #ansKey="ngModel"
+                >
+                <div *ngIf="signupForm.submitted && ansKey.invalid" class="invalid-feedback">
+                    <div *ngIf="ansKey.errors?.['required']" class="text-danger">
+                        Answer Key is required
+                    </div>
+                </div>
+            </div>
+            <div class="d-flex justify-content-between mt-3">
+                <button class="btn btn-secondary mr-2" (click)="clearSignature()">Clear</button>
+                <!-- <button class="btn btn-primary" (click)="saveSignature()">Save</button> -->
+                <button type="submit" class="btn btn-primary">Submit</button>
+            </div>
+        </form>
+       
     </div>
 </div>

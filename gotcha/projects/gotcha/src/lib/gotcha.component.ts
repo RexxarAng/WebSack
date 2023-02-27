@@ -1,21 +1,25 @@
-import { Component, ViewChild, ElementRef, OnInit } from '@angular/core';
+import { Component, ViewChild, ElementRef, AfterViewInit, Output, EventEmitter } from '@angular/core';
 import SignaturePad from 'signature_pad';
+import { NgForm } from '@angular/forms';
 
 @Component({
   selector: 'app-signature-pad',
   templateUrl: `./gotcha.component.html`,
   styles: []
 })
-export class GotchaComponent implements OnInit {
+export class GotchaComponent implements AfterViewInit {
   @ViewChild('signaturePadCanvas', { static: true }) canvas!: ElementRef;
+  @Output() signatureDataUrlEmitter = new EventEmitter<string>();
+  @Output() closeModalEvent = new EventEmitter<void>();
 
+  gotchaData: any = {};
   signaturePad!: SignaturePad;
+  signatureDataUrl: string = ""; 
 
-  // ngAfterViewInit(): void {
-  //   this.signaturePad = new SignaturePad(this.canvas.nativeElement);
-  // }
-  ngOnInit() {
-    this.signaturePad = new SignaturePad(this.canvas.nativeElement);
+  ngAfterViewInit() {
+    if (this.canvas) {
+      this.signaturePad = new SignaturePad(this.canvas.nativeElement);
+    }
   }
 
   clearSignature(): void {
@@ -23,8 +27,19 @@ export class GotchaComponent implements OnInit {
   }
 
   saveSignature(): void {
-    const signatureData = this.signaturePad.toDataURL();
     // Do something with the signature data, like send it to a server.
+    this.signatureDataUrl = this.signaturePad.toDataURL(); // get the signature data URL
+    this.signatureDataUrlEmitter.emit(this.signatureDataUrl); // emit the dataURL as an event
+    this.closeModalEvent.emit();
+  }
+
+  onSubmit(form: NgForm) {
+    if (form.valid) {
+      this.signatureDataUrl = this.signaturePad.toDataURL(); // get the signature data URL
+      this.signatureDataUrlEmitter.emit(this.signatureDataUrl); // emit the dataURL as an event
+      this.closeModalEvent.emit();
+    }
+   
   }
 }
 
