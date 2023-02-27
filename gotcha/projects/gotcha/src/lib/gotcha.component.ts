@@ -10,6 +10,7 @@ import { NgForm } from '@angular/forms';
 export class GotchaComponent implements AfterViewInit {
   @ViewChild('signaturePadCanvas', { static: true }) canvas!: ElementRef;
   @Output() signatureDataUrlEmitter = new EventEmitter<string>();
+  @Output() ansKeyEmitter = new EventEmitter<string>();
   @Output() closeModalEvent = new EventEmitter<void>();
 
   gotchaData: any = {};
@@ -37,6 +38,7 @@ export class GotchaComponent implements AfterViewInit {
     if (form.valid) {
       this.signatureDataUrl = this.signaturePad.toDataURL(); // get the signature data URL
       this.signatureDataUrlEmitter.emit(this.signatureDataUrl); // emit the dataURL as an event
+      this.ansKeyEmitter.emit(this.gotchaData.ansKey);
       this.closeModalEvent.emit();
     }
    
