@@ -22,7 +22,7 @@
     "@auth0/angular-jwt": "^5.1.2",
     "@ng-bootstrap/ng-bootstrap": "^14.0.1",
     "@popperjs/core": "^2.11.6",
-    "@websack/gotcha": "^2.0.0",
+    "@websack/gotcha": "^2.0.8",
     "bootstrap": "^5.2.3",
     "file-saver": "^2.0.5",
     "jquery": "^3.6.3",

@@ -1,6 +1,7 @@
 import { Component, ElementRef, ViewChild, Output, EventEmitter } from '@angular/core';
 import SignaturePad from 'signature_pad';
 
+
 @Component({
   selector: 'app-signaturepad',
   templateUrl: './signaturepad.component.html',

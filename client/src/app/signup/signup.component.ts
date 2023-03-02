@@ -3,8 +3,7 @@ import { NgForm } from '@angular/forms'
 import { UserService } from '../services/user.service'
 import { Router } from '@angular/router'
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
-// import { GotchaComponent } from '@websack/gotcha';
-import { SignaturepadComponent } from '../signaturepad/signaturepad.component'
+import { SignaturepadComponent } from '../signaturepad/signaturepad.component';
 import { saveAs } from 'file-saver';
 import { Buffer } from 'buffer';
 
@@ -28,6 +27,7 @@ export class SignupComponent {
 
   showSignaturePad = true;
   signatureDataUrl: string = "";
+  imgVfierHash: string = "";
 
   formData: any = {};
   isNameValid: boolean = true;
@@ -95,9 +95,9 @@ export class SignupComponent {
     this.modalService.dismissAll();
   }
 
-  handleSignatureDataUrl(dataUrl: string) {
-    this.signatureDataUrl = dataUrl;
-    console.log(this.signatureDataUrl); // log the dataURL in the console
+  handleGatchaData(gotchaData: any) {
+    this.signatureDataUrl = gotchaData.dataUrl;
+    this.imgVfierHash = gotchaData.imgVfier;
     // do something with the dataURL, such as sending it to the backend
   }
 

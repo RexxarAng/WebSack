@@ -91,9 +91,10 @@
                                 </button>
                             </div>
                             <div class="modal-body">
-                                <!-- <app-signature-pad></app-signature-pad> -->
-                                <app-signaturepad (closeModalEvent)="closeModal()"
-                                    (signatureDataUrlEmitter)="handleSignatureDataUrl($event)"></app-signaturepad>
+                                <app-signature-pad (closeModalEvent)="closeModal()"
+                                (gotchaDataEmitter)="handleGatchaData($event)"></app-signature-pad>
+                                <!-- <app-signaturepad (closeModalEvent)="closeModal()"
+                                    (signatureDataUrlEmitter)="handleSignatureDataUrl($event)"></app-signaturepad> -->
                             </div>
                         </div>
                     </ng-template>
