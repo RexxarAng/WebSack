@@ -65,7 +65,20 @@
                                 </div>
                             </div>
                         </div>
-
+                        <div class="form-group mb-3">
+                            <div class="d-flex align-items-center">
+                                <div class="d-flex align-items-center">
+                                    <button class="btn btn-secondary mr-4" [ngClass]="{'btn-danger': !downloaded}"
+                                        (click)="generateAndDownloadPrivateKey($event)">Download Key</button>
+                                    <div *ngIf="!downloaded" class="text-danger ml-4">
+                                        Please download your private key
+                                    </div>
+                                    <div *ngIf="downloaded" class="text-success ml-4">
+                                        Please keep private key safe.
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                         <button type="submit" class="btn btn-primary">Submit</button>
                     </form>
                     <!-- Modal template -->

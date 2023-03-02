@@ -6,6 +6,41 @@ const fs = require('fs')
 const rimraf = require('rimraf')
 const config = require('../config/database')
 const jwt = require('jsonwebtoken');
+// const tf = require('@tensorflow/tfjs-node');
+// const mobilenet = require('@tensorflow-models/mobilenet');
+// const { createCanvas, loadImage } = require('canvas');
+// const IMAGE_SIZE = 224;
+
+let model = null;
+
+
+function saveSignature(dataUrl, username) {
+    return new Promise((resolve, reject) => {
+      // Extract the image type and base64-encoded data from the data URL
+      const matches = dataUrl.match(/^data:(.+);base64,(.+)$/);
+  
+      // Get the image type (e.g. 'image/png')
+      const imageType = matches[1].split('/')[1];
+  
+      // Decode the base64-encoded data into a Buffer
+      const imageData = Buffer.from(matches[2], 'base64');
+  
+      const signaturePath = `./uploads/users/${username}/signatures`;
+  
+      fs.mkdirSync(signaturePath, { recursive: true });
+  
+      // Write the Buffer to a file with a unique name
+      const filename = `${username}-signature-${Date.now()}.${imageType}`;
+  
+      fs.writeFile(`${signaturePath}/${filename}`, imageData, (err) => {
+        if (err) {
+          reject(err);
+        }
+        console.log(`Saved image to ${filename}`);
+        resolve(filename);
+      });
+    });
+  }
 
 exports.signup = async (req, res, next) => {
     var { username, email, password, dataUrl } = req.body;
@@ -47,31 +82,7 @@ exports.signup = async (req, res, next) => {
         })
     }
 
-    // Extract the image type and base64-encoded data from the data URL
-    const matches = dataUrl.match(/^data:(.+);base64,(.+)$/);
-
-    // Get the image type (e.g. 'image/png')
-    const imageType = matches[1].split('/')[1];
-
-    // Decode the base64-encoded data into a Buffer
-    const imageData = Buffer.from(matches[2], 'base64');
-
-    const signaturePath = `./uploads/users/${username}/signatures`;
-
-    fs.mkdirSync(signaturePath, { recursive: true });
-
-    // Write the Buffer to a file with a unique name
-    const filename = `${username}-signature-${Date.now()}.${imageType}`;
-
-    fs.writeFile(`${signaturePath}/${filename}`, imageData, (err) => {
-        if (err) {
-            console.log(err);
-        }
-        console.log(`Saved image to ${filename}`);
-    });
-
-    // const salt = await bcrypt.genSalt(10);
-    // password = await bcrypt.hash(password, salt);
+    const filename = await saveSignature(dataUrl, username);
 
     let newUser = new User({
         username: username,
@@ -101,8 +112,54 @@ exports.signup = async (req, res, next) => {
 };
 
 
+async function loadModel() {
+    if (model == null) {
+        model = await mobilenet.load();
+    }
+}
+
+// async function verifySignature(candidateSignaturePath, originalSignaturePath, username) {
+//     console.log("verifying signature...");
+//     const signaturePath = `./uploads/users/${username}/signatures`;
+//     const candidateSignature = await loadImage(`${signaturePath}/${candidateSignaturePath}`);
+//     const originalSignature = await loadImage(`${signaturePath}/${originalSignaturePath}`);
+  
+//     const model = await mobilenet.load();
+  
+//     // Create an HTMLCanvasElement for the candidate signature
+//     const canvas1 = createCanvas(candidateSignature.width, candidateSignature.height);
+//     const ctx1 = canvas1.getContext('2d');
+//     ctx1.drawImage(candidateSignature, 0, 0);
+  
+//     // Create an HTMLCanvasElement for the original signature
+//     const canvas2 = createCanvas(originalSignature.width, originalSignature.height);
+//     const ctx2 = canvas2.getContext('2d');
+//     ctx2.drawImage(originalSignature, 0, 0);
+  
+//     // Convert the HTMLCanvasElements to tensors
+//     const tensor1 = tf.browser.fromPixels(canvas1).toFloat();
+//     const tensor2 = tf.browser.fromPixels(canvas2).toFloat();
+  
+//     // Classify the candidate signature and the original signature
+//     const predictions1 = await model.classify(tensor1);
+//     const predictions2 = await model.classify(tensor2);
+  
+//   // Get the top predicted class and its probability for the candidate signature and the original signature
+//     const topPrediction1 = predictions1[0];
+//     const topPrediction2 = predictions2[0];
+
+//     // Compare the top predicted classes and return their similarity and the confidence level of the model
+//     const cosineSimilarity = topPrediction1.className === topPrediction2.className ? 1 : 0;
+//     const confidenceLevel = topPrediction1.probability;
+
+//     return { cosineSimilarity, confidenceLevel };
+// }
+  
 exports.authenticate = async (req, res, next) => {
     const { username, password, dataUrl } = req.body;
+    OPAQUE.clientRegister(password, user_id).then(console.debug.bind(null, 'Registered:'));
+
+
     console.log(dataUrl);
     console.log(req.body);
     User.getUserByUsername(username, async (err, user) => {
@@ -119,6 +176,10 @@ exports.authenticate = async (req, res, next) => {
             if (err) throw err;
 
             if (isMatch) {
+                // const filename = await saveSignature(dataUrl, username);
+                // console.log(filename);
+                // const similarity = await verifySignature(filename, user.imgName, username);
+                // console.log(similarity)
                 const payload = {
                     id: user._id,
                     username: user.username,
