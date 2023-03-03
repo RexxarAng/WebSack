@@ -13,19 +13,6 @@ const jwt = require('jsonwebtoken');
 const Opaque = require('../opaque/opaque');
 
 let model = null;
-let rKey;
-
-async function doEncrypt(imgVerifier, uKey) {
-    try {
-      const { GotchaService } = await import('@websack/gotcha');
-      const gService = new GotchaService();
-      rKey = gService.vHashEncrypt(imgVerifier, uKey);
-      console.log(rKey);
-    } catch (err) {
-      // handle error here
-    }
-  }
-
 
 function saveSignature(dataUrl, username) {
     return new Promise((resolve, reject) => {
@@ -115,9 +102,6 @@ exports.signup = async (req, res, next) => {
 
     const filename = await saveSignature(dataUrl, username);
     
-    // HERE!
-    doEncrypt(imgVerifier, uKey)
-
     let newUser = new User({
         username: username,
         email: email,
