@@ -3,6 +3,9 @@ const router = express.Router();
 const apiController = require("../controllers/apiController");
 const passport = require("passport");
 
+
+router.post("/startSignup", apiController.startSignup);
+
 router.post("/signup", apiController.signup);
 
 router.post("/authenticate", apiController.authenticate);

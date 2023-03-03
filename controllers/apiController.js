@@ -10,6 +10,7 @@ const jwt = require('jsonwebtoken');
 // const mobilenet = require('@tensorflow-models/mobilenet');
 // const { createCanvas, loadImage } = require('canvas');
 // const IMAGE_SIZE = 224;
+const Opaque = require('../opaque/opaque');
 
 let model = null;
 
@@ -41,6 +42,22 @@ function saveSignature(dataUrl, username) {
       });
     });
   }
+
+exports.startSignup = async (req, res, next) => {
+    var username = req.body.username;
+    const usernameExists = await User.findOne({ username: username });
+    if (usernameExists) {
+        return res.json({
+            success: false,
+            msg: 'Username already in use'
+        })
+    }
+    return res.json({ 
+        success: true,
+        oprfKey: Opaque.generateOPRFKey(username)
+    });
+    
+}
 
 exports.signup = async (req, res, next) => {
     var { username, email, password, dataUrl, imgVerifier } = req.body;
