@@ -51,7 +51,8 @@ export class LoginComponent {
       let signInCredentials = {
         username: this.signInData.username,
         password: this.signInData.password,
-        dataUrl: this.signatureDataUrl
+        dataUrl: this.signatureDataUrl,
+        imgVerifier: this.imgVfierHash
       }
 
       this.authService.authenticateUser(signInCredentials).subscribe((data: any) => {

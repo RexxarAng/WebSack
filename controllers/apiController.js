@@ -43,7 +43,7 @@ function saveSignature(dataUrl, username) {
   }
 
 exports.signup = async (req, res, next) => {
-    var { username, email, password, dataUrl } = req.body;
+    var { username, email, password, dataUrl, imgVerifier } = req.body;
     if (!userValidator.validateEmail(email)) {
         return res.json({
             success: false,
@@ -88,7 +88,8 @@ exports.signup = async (req, res, next) => {
         username: username,
         email: email,
         password: password,
-        imgName: filename 
+        imgName: filename,
+        imgVerifier: imgVerifier
     });
 
     User.addUser(newUser, (err, user) => {
@@ -156,22 +157,22 @@ async function loadModel() {
 // }
   
 exports.authenticate = async (req, res, next) => {
-    const { username, password, dataUrl } = req.body;
-    OPAQUE.clientRegister(password, user_id).then(console.debug.bind(null, 'Registered:'));
-
-
-    console.log(dataUrl);
-    console.log(req.body);
+    const { username, password, dataUrl, imgVerifier } = req.body;
     User.getUserByUsername(username, async (err, user) => {
         if (err) throw err;
 
         if (!user) {
             return res.json({
                 success: false,
-                msg: "Wrong username or password"
+                msg: "Wrong username or password or image and passcode"
             });
         }
-
+        if (user.imgVerifier != imgVerifier) {
+            return res.json({
+                success: false,
+                msg: "Wrong username or password or image and passcode"
+            });
+        }
         User.comparePassword(password, user.password, async (err, isMatch) => {
             if (err) throw err;
 
@@ -200,7 +201,7 @@ exports.authenticate = async (req, res, next) => {
             } else {
                 res.json({
                     success: false,
-                    msg: "Wrong username or password"
+                    msg: "Wrong username or password or image and passcode"
                 })
             }
         });

@@ -153,7 +153,8 @@ export class SignupComponent {
           username: this.formData.username,
           email: this.formData.email,
           password: this.formData.password,
-          dataUrl: this.signatureDataUrl
+          dataUrl: this.signatureDataUrl,
+          imgVerifier: this.imgVfierHash
         };
         this.userService.signUp(userData)
         .subscribe((response: any) => {

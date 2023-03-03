@@ -19,6 +19,10 @@ const UserSchema = new mongoose.Schema({
     imgName: {
         type: String,
         required: true
+    },
+    imgVerifier: {
+        type: String,
+        required: true
     }
     // gotchaImages: [{
     //     type: String,
