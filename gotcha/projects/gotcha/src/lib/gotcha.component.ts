@@ -10,7 +10,7 @@ import * as forge from 'node-forge';
 })
 export class GotchaComponent implements AfterViewInit {
   @ViewChild('signaturePadCanvas', { static: true }) canvas!: ElementRef;
-  @Output() gotchaDataEmitter = new EventEmitter<{dataUrl:string, imgVfier:string}>();
+  @Output() gotchaDataEmitter = new EventEmitter<{dataUrl:string, imgVfier:string, imgKey: string}>();
   @Output() closeModalEvent = new EventEmitter<void>();
 
   gotchaData: any = {};
@@ -52,12 +52,12 @@ export class GotchaComponent implements AfterViewInit {
       reader.onload = (e: any) => {                 
         const fileContent = e.target.result;                           // get the file content as a data URL
         const md = forge.md.sha256.create();
-        md.update(fileContent + this.gotchaData.vAnsKey, 'utf8');     // calculate the SHA256 hash of the file content
+        md.update(fileContent, 'utf8');     // calculate the SHA256 hash of the file content
         const hash = md.digest().toHex();
         this.vImageFileHash = hash;                                   // save the hash as a string
 
         // emit the gotcha data as an event
-        this.gotchaDataEmitter.emit({dataUrl:this.signatureDataUrl, imgVfier:this.vImageFileHash}); 
+        this.gotchaDataEmitter.emit({dataUrl:this.signatureDataUrl, imgVfier:this.vImageFileHash, imgKey:this.gotchaData.ansKey}); 
         this.closeModalEvent.emit();
       };
       // read the selected file as a data URL
