@@ -39,36 +39,4 @@ export class GotchaLoginComponent implements AfterViewInit {
   clearSignature() {
     this.signaturePad.clear();
   }
-
-  vFieldsFilled(): Boolean {
-    if (this.vImageName == "" || this.gotchaData.vAnsKey == "") {
-      console.log("test failed");
-      return false
-    }
-    console.log(this.vImageName);
-    console.log(this.gotchaData.vAnsKey);
-    return true
-  }
-
-  getSigDataUrl(): string {
-    this.signatureDataUrl = this.signaturePad.toDataURL();  // get the signature data URL
-    return this.signatureDataUrl;
-  }
- 
-
-  getVImageHash() {
-    const reader = new FileReader();                        // create a new FileReader object
-
-    // set the onload event handler for the FileReader
-    reader.onload = (e: any) => {                 
-      const fileContent = e.target.result;                           // get the file content as a data URL
-      const md = forge.md.sha256.create();
-      md.update(fileContent + this.gotchaData.vAnsKey, 'utf8');     // calculate the SHA256 hash of the file content
-      const hash = md.digest().toHex();
-      this.vImageFileHash = hash;                                   // save the hash as a string
-      return this.vImageFileHash;
-    }
-    // read the selected file as a data URL
-    reader.readAsDataURL(this.vImageFile);
-  }
 }

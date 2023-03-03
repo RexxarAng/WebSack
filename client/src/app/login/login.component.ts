@@ -14,11 +14,12 @@ export class LoginComponent {
   @Output() closeModalEvent = new EventEmitter<void>();
 
   @ViewChild('signatureModal') signatureModal!: ElementRef;
-
+  
 
   loginError = false;
   signInData: any = {};
   signatureDataUrl: string = "";
+  imgVfierHash: string = "";
 
   constructor(
     private router: Router,
@@ -35,11 +36,13 @@ export class LoginComponent {
     this.modalService.dismissAll();
   }
 
-  handleSignatureDataUrl(dataUrl: string) {
-    this.signatureDataUrl = dataUrl;
-    console.log(this.signatureDataUrl); // log the dataURL in the console
+  handleGotchaData(gotchaData: any) {
+    this.signatureDataUrl = gotchaData.dataUrl;
+    this.imgVfierHash = gotchaData.imgVfier;
     // do something with the dataURL, such as sending it to the backend
   }
+
+  
 
   onSubmit(form: NgForm) {
     if (form.valid) {

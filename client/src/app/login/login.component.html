@@ -65,8 +65,8 @@
             </button>
         </div>
         <div class="modal-body">
-            <app-signaturepad (closeModalEvent)="closeModal()"
-                (signatureDataUrlEmitter)="handleSignatureDataUrl($event)"></app-signaturepad>
+            <app-gotchapad (closeModalEvent)="closeModal()"
+            (gotchaDataEmitter)="handleGotchaData($event)">></app-gotchapad>
         </div>
     </div>
 </ng-template>
