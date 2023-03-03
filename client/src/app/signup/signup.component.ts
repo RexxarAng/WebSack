@@ -7,8 +7,10 @@ import { SignaturepadComponent } from '../signaturepad/signaturepad.component';
 import { saveAs } from 'file-saver';
 import { Buffer } from 'buffer';
 import { createHash } from 'crypto-browserify';
-import { eddsa, utils } from 'elliptic';
-import { BN } from 'bn.js';
+// import { eddsa, utils } from 'elliptic';
+// import { BN } from 'bn.js';
+import { GotchaService } from '@websack/gotcha';
+import { UserService } from '../services/user.service';
 
 @Component({
   selector: 'app-signup',
@@ -26,6 +28,8 @@ export class SignupComponent {
     private authService: AuthService, 
     private router: Router,
     private modalService: NgbModal,
+    private gService: GotchaService,
+    private userService: UserService
   ) {  }
 
   showSignaturePad = true;
@@ -87,6 +91,7 @@ export class SignupComponent {
   //       });
   //   });
   // }
+  
 
   
   showSignatureModal(event: Event) {
@@ -129,51 +134,79 @@ export class SignupComponent {
   //       });
   //   }
   // }
-
   onSubmit(form: NgForm) {
     if (form.valid) {
-      var username = {
-        username: this.formData.username
-      }
-      // Get OPRF Key
-      this.authService.startSignup(username).subscribe((response: any) => {
-        console.log(response);
-        if(response.success) {
-          const curve = new eddsa('ed25519');
-          const hashedPassword = createHash('sha256').update(this.formData.password).digest();
-          const hashedPasswordBuffer = Buffer.from(hashedPassword);
-          const oprfKeyBuffer = Buffer.from(response.oprfKey, 'hex');
-          const passwordPoint = curve.curve.pointFromX(hashedPasswordBuffer, true);
-          const scalar = new BN(oprfKeyBuffer);
-          const oprfOutput = passwordPoint.mul(scalar).encode('hex', false);
-          console.log(`oprfOutput: ${oprfOutput}`);
-          // Send the registration data to the server
-          var userData = {
-            username: this.formData.username,
-            email: this.formData.email,
-            oprfOutput: oprfOutput,
-            dataUrl: this.signatureDataUrl,
-            imgVerifier: this.imgVfierHash,
-            oprfKey: response.oprfKey
-          };
-          this.authService.completeSignup(userData)
-          .subscribe((response: any) => {
-            console.log(response)
-            if (response.success) {
-              this.serverProof = response.serverProof;
-              this.modalService.open(this.signupSuccessModal);
-              setTimeout(() => {
-                this.modalService.dismissAll();
-                this.router.navigate(['login']);
-              }, 5000);  //5s
-            } else {
-              this.message = response.msg;
-              this.modalService.open(this.signupFailureModal);
-            }
-          });
+      const uKey = this.gService.uKeyPrep(this.formData.password);
+      // Send the registration data to the server
+      var userData = {
+        username: this.formData.username,
+        email: this.formData.email,
+        password: this.formData.password,
+        dataUrl: this.signatureDataUrl,
+        imgVerifier: this.imgVfierHash,
+        uKey: uKey
+      };
+      this.userService.signUp(userData)
+      .subscribe((response: any) => {
+        console.log(response)
+        if (response.success) {
+          this.modalService.open(this.signupSuccessModal);
+          setTimeout(() => {
+            this.modalService.dismissAll();
+            this.router.navigate(['login']);
+          }, 5000);  //5s
+        } else {
+          this.message = response.msg;
+          this.modalService.open(this.signupFailureModal);
         }
       });
-     
     }
   }
+
+  // onSubmit(form: NgForm) {
+  //   if (form.valid) {
+  //     var username = {
+  //       username: this.formData.username
+  //     }
+  //     // Get OPRF Key
+  //     this.authService.startSignup(username).subscribe((response: any) => {
+  //       console.log(response);
+  //       if(response.success) {
+  //         const curve = new eddsa('ed25519');
+  //         const hashedPassword = createHash('sha256').update(this.formData.password).digest();
+  //         const hashedPasswordBuffer = Buffer.from(hashedPassword);
+  //         const oprfKeyBuffer = Buffer.from(response.oprfKey, 'hex');
+  //         const passwordPoint = curve.curve.pointFromX(hashedPasswordBuffer, true);
+  //         const scalar = new BN(oprfKeyBuffer);
+  //         const oprfOutput = passwordPoint.mul(scalar).encode('hex', false);
+  //         console.log(`oprfOutput: ${oprfOutput}`);
+  //         // Send the registration data to the server
+  //         var userData = {
+  //           username: this.formData.username,
+  //           email: this.formData.email,
+  //           oprfOutput: oprfOutput,
+  //           dataUrl: this.signatureDataUrl,
+  //           imgVerifier: this.imgVfierHash,
+  //           oprfKey: response.oprfKey
+  //         };
+  //         this.authService.completeSignup(userData)
+  //         .subscribe((response: any) => {
+  //           console.log(response)
+  //           if (response.success) {
+  //             this.serverProof = response.serverProof;
+  //             this.modalService.open(this.signupSuccessModal);
+  //             setTimeout(() => {
+  //               this.modalService.dismissAll();
+  //               this.router.navigate(['login']);
+  //             }, 5000);  //5s
+  //           } else {
+  //             this.message = response.msg;
+  //             this.modalService.open(this.signupFailureModal);
+  //           }
+  //         });
+  //       }
+  //     });
+     
+  //   }
+  // }
 }

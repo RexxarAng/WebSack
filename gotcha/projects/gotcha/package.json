@@ -1,9 +1,23 @@
 {
   "name": "@websack/gotcha",
   "version": "2.0.0",
+  "main":"./lib/gotchaservice.js",
   "peerDependencies": {
     "@angular/common": "^15.2.0",
-    "@angular/core": "^15.2.0"
+    "@angular/core": "^15.2.0",
+    "@angular/animations": "^15.2.0",
+    "@angular/compiler": "^15.2.0",
+    "@angular/forms": "^15.2.0",
+    "@angular/platform-browser": "^15.2.0",
+    "@angular/platform-browser-dynamic": "^15.2.0",
+    "@angular/router": "^15.2.0",
+    "@types/node": "^18.14.4",
+    "@types/node-forge": "^1.3.1",
+    "crypto-js": "^4.1.1",
+    "rxjs": "~7.8.0",
+    "signature_pad": "^4.1.5",
+    "tslib": "^2.3.0",
+    "zone.js": "~0.12.0"
   },
   "dependencies": {
     "tslib": "^2.3.0"
