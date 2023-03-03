@@ -4,7 +4,7 @@ import { NgForm } from '@angular/forms';
 import * as forge from 'node-forge';
 
 @Component({
-  selector: 'app-signature-pad',
+  selector: 'app-gotchapad-register',
   templateUrl: `./gotcha.component.html`,
   styles: []
 })
