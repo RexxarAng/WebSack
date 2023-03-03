@@ -1,9 +1,10 @@
 const crypto = require('crypto');
 const elliptic = require('elliptic');
 const serverOprfKey = crypto.randomBytes(32);
+const bigInt = require('big-integer');
 
-// Define the elliptic curve to use (in this example, we use curve P-256)
-const curve = elliptic.curves['p256'];
+// Define the elliptic curve to use (in this example, we use curve ed25519)
+const curve = elliptic.curves['ed25519'];
 
 // Define a secret value and a random salt
 const secret = 'my-secret-password';
@@ -19,9 +20,12 @@ module.exports = {
 }
 
 module.exports.generateOPRFKey = function(username) {
+    console.log(username);
     // Derive a user-specific key from the server's master OPRF key and the username
     const userOPRFKey = crypto.createHmac('sha256', serverOPRFKey).update(username).digest();
-    // Convert the user-specific key to a elliptic curve scalar using SHA-256 as the hash function
-    const scalar = new elliptic.utils.BigInt(userOPRFKey.toString('hex'), 16).mod(curve.n);
-    return scalar;
+    // Convert the user-specific key to a BigInt
+    const scalar = BigInt(`0x${userOPRFKey.toString('hex')}`);
+    // Ensure the scalar is in the range [1, n-1]
+    const scalarMod = scalar % BigInt(curve.n);
+    return scalarMod.toString(16);
 }
