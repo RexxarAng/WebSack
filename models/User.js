@@ -12,7 +12,7 @@ const UserSchema = new mongoose.Schema({
         unique: true,
         required: true
     },
-    password: {
+    passwordVerifier: {
         type: String,
         required: true
     },
@@ -21,6 +21,10 @@ const UserSchema = new mongoose.Schema({
         required: true
     },
     imgVerifier: {
+        type: String,
+        required: true
+    },
+    oprfKey: {
         type: String,
         required: true
     }
