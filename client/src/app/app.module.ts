@@ -41,7 +41,11 @@ export function getToken() {
       config: {
         tokenGetter: getToken,
         allowedDomains: ['https://websack.eloquent-jennings.cloud'],
-        disallowedRoutes: ['https://websack.eloquent-jennings.cloud/api/login']
+        disallowedRoutes: [
+          'https://websack.eloquent-jennings.cloud/api/login',
+          'https://websack.eloquent-jennings.cloud/api/signup',
+          'https://websack.eloquent-jennings.cloud/api/startSignup'
+        ]
       }
     })
   ],

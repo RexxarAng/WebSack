@@ -14,8 +14,23 @@ export class AuthService {
         @Inject('API_URL') private apiUrl: string
         ) { }
 
-    registerUser(user: any) {
+    startSignup(username: any) {
+        const url = `${this.apiUrl}/startSignup`
+        return this.http.post(url, username);
+    }
+
+    signup(user: any) {
         const url = `${this.apiUrl}/signup`
+        return this.http.post(url, user);
+    }
+
+    completeSignup(user: any) {
+        const url = `${this.apiUrl}/completeSignup`
+        return this.http.post(url, user);
+    }
+
+    startAuthenticate(user: any) {
+        const url = `${this.apiUrl}/startAuthenticate`
         return this.http.post(url, user);
     }
 

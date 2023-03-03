@@ -4,6 +4,10 @@ import { Router } from '@angular/router';
 import { AuthService } from '../services/auth.service';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { SignaturepadComponent } from '../signaturepad/signaturepad.component'
+import { Buffer } from 'buffer';
+import { createHash } from 'crypto-browserify';
+import { eddsa, utils } from 'elliptic';
+import { BN } from 'bn.js';
 
 @Component({
   selector: 'app-login',
@@ -44,27 +48,74 @@ export class LoginComponent {
 
   
 
+  // onSubmit(form: NgForm) {
+  //   if (form.valid) {
+  //     this.loginError = false
+  //     console.log(this.signInData);
+  //     let signInCredentials = {
+  //       username: this.signInData.username,
+  //       password: this.signInData.password,
+  //       dataUrl: this.signatureDataUrl,
+  //       imgVerifier: this.imgVfierHash
+  //     }
+
+  //     this.authService.authenticate(signInCredentials).subscribe((data: any) => {
+  //         if (!data.success) {
+  //           this.loginError = true;
+  //         } else {
+  //           this.loginError = false;
+  //           this.authService.storeUserToken(data.token, data.user);
+  //           console.log(this.authService.tokenGetter());
+  //           this.router.navigate(['/profile']);
+  //         }
+  //     });
+  //   }
+  // }
+
   onSubmit(form: NgForm) {
     if (form.valid) {
       this.loginError = false
       console.log(this.signInData);
       let signInCredentials = {
         username: this.signInData.username,
-        password: this.signInData.password,
         dataUrl: this.signatureDataUrl,
         imgVerifier: this.imgVfierHash
       }
 
-      this.authService.authenticateUser(signInCredentials).subscribe((data: any) => {
-          if (!data.success) {
-            this.loginError = true;
-          } else {
-            this.loginError = false;
-            this.authService.storeUserToken(data.token, data.user);
-            console.log(this.authService.tokenGetter());
-            this.router.navigate(['/profile']);
+      this.authService.startAuthenticate(signInCredentials).subscribe((response: any) => {
+        console.log(response);
+        if (!response.success) {
+          this.loginError = true;
+        } else {
+          const curve = new eddsa('ed25519');
+          const hashedPassword = createHash('sha256').update(this.signInData.password).digest();
+          const hashedPasswordBuffer = Buffer.from(hashedPassword);
+          const oprfKeyBuffer = Buffer.from(response.oprfKey, 'hex');
+          const passwordPoint = curve.curve.pointFromX(hashedPasswordBuffer, true);
+          const scalar = new BN(oprfKeyBuffer);
+          const oprfOutput = passwordPoint.mul(scalar).encode('hex', false);
+          console.log(`oprfOutput: ${oprfOutput}`);
+          let credentials = {
+            username: this.signInData.username,
+            passwordVerifier: oprfOutput,
+            dataUrl: this.signatureDataUrl,
+            imgVerifier: this.imgVfierHash
           }
+          this.authService.authenticateUser(credentials).subscribe((data: any) => {
+            if (data.success) {
+              this.loginError = false;
+              this.authService.storeUserToken(data.token, data.user);
+              console.log(this.authService.tokenGetter());
+              this.router.navigate(['/profile']);
+            } else {
+              this.loginError = true;
+            }
+          });
+          
+        }
       });
     }
   }
+
+
 }
