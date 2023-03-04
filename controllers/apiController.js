@@ -296,6 +296,25 @@ async function loadModel() {
 //     });
 // };
 
+
+// Gotcha
+exports.vImgIdentify = async (req, res, next) => {
+    const { username } = req.body;
+    User.findOne({username: username}, async (err, user) => {
+        if (err) throw err;
+        if (!user) {
+            return res.json({
+                success: false,
+                msg: "Wrong username or password or image and passcode"
+            });
+        } 
+        return res.json({
+            success: true,
+            vImgVerifier: user.imgVerifier
+        });
+    });
+}
+
 exports.startAuthenticate = async (req, res, next) => {
     const { username, dataUrl, imgVerifier } = req.body;
     User.findOne({username: username}, async (err, user) => {

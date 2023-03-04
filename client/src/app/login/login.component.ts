@@ -8,6 +8,7 @@ import { Buffer } from 'buffer';
 import { createHash } from 'crypto-browserify';
 import { eddsa, utils } from 'elliptic';
 import { BN } from 'bn.js';
+import { GotchaService } from '@websack/gotcha';
 
 @Component({
   selector: 'app-login',
@@ -24,11 +25,13 @@ export class LoginComponent {
   signInData: any = {};
   signatureDataUrl: string = "";
   imgVfierHash: string = "";
+  imgKey: string = "";
 
   constructor(
     private router: Router,
     private authService: AuthService,
     private modalService: NgbModal,
+    private gService: GotchaService
   ) {}
 
   showSignatureModal(event: Event) {
@@ -43,6 +46,7 @@ export class LoginComponent {
   handleGotchaData(gotchaData: any) {
     this.signatureDataUrl = gotchaData.dataUrl;
     this.imgVfierHash = gotchaData.imgVfier;
+    this.imgKey = gotchaData.imgKey;
     // do something with the dataURL, such as sending it to the backend
   }
 
@@ -74,12 +78,15 @@ export class LoginComponent {
 
   onSubmit(form: NgForm) {
     if (form.valid) {
+      const uKey = this.gService.uKeyPrep(this.imgKey)
+      var eImgVfier = this.gService.vHashEncrypt(this.imgVfierHash,uKey,this.signInData.password);
+  
       this.loginError = false
       console.log(this.signInData);
       let signInCredentials = {
         username: this.signInData.username,
         dataUrl: this.signatureDataUrl,
-        imgVerifier: this.imgVfierHash
+        imgVerifier: eImgVfier
       }
 
       this.authService.startAuthenticate(signInCredentials).subscribe((response: any) => {
@@ -99,7 +106,7 @@ export class LoginComponent {
             username: this.signInData.username,
             passwordVerifier: oprfOutput,
             dataUrl: this.signatureDataUrl,
-            imgVerifier: this.imgVfierHash
+            imgVerifier: eImgVfier
           }
           this.authService.authenticateUser(credentials).subscribe((data: any) => {
             if (data.success) {

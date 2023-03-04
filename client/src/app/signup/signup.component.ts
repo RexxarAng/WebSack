@@ -139,9 +139,8 @@ export class SignupComponent {
 
   onSubmit(form: NgForm) {
     if (form.valid) {
-      // const uKey = this.gService.uKeyPrep(this.imgKey);
-      // const eImgVfier = this.gService.vHashEncrypt(this.formData.imgVfierHash ,uKey);
-      // console.log("encImgVfier:"+eImgVfier);
+      const uKey = this.gService.uKeyPrep(this.imgKey);
+      const eImgVfier = this.gService.vHashEncrypt(this.imgVfierHash ,uKey, this.formData.password);
       var username = {
         username: this.formData.username
       }
@@ -163,7 +162,7 @@ export class SignupComponent {
             email: this.formData.email,
             oprfOutput: oprfOutput,
             dataUrl: this.signatureDataUrl,
-            imgVerifier: this.imgVfierHash,
+            imgVerifier: eImgVfier,
             oprfKey: response.oprfKey
           };
           this.authService.completeSignup(userData)
