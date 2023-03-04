@@ -78,49 +78,61 @@ export class LoginComponent {
 
   onSubmit(form: NgForm) {
     if (form.valid) {
-      const uKey = this.gService.uKeyPrep(this.imgKey)
-      var eImgVfier = this.gService.vHashEncrypt(this.imgVfierHash,uKey,this.signInData.password);
-  
       this.loginError = false
-      console.log(this.signInData);
-      let signInCredentials = {
-        username: this.signInData.username,
-        dataUrl: this.signatureDataUrl,
-        imgVerifier: eImgVfier
-      }
 
-      this.authService.startAuthenticate(signInCredentials).subscribe((response: any) => {
-        console.log(response);
-        if (!response.success) {
+      // Gotcha
+      const uKey = this.gService.uKeyPrep(this.imgKey)
+      var eImgVfier = "";
+      let findUsername = { username: this.signInData.username, }
+      this.authService.verifyUserImg(findUsername).subscribe((response: any) => {
+        if (!response.success || !(this.gService.vHashVerify(response.vImgVerifier,this.imgVfierHash, uKey))) {
           this.loginError = true;
         } else {
-          const curve = new eddsa('ed25519');
-          const hashedPassword = createHash('sha256').update(this.signInData.password).digest();
-          const hashedPasswordBuffer = Buffer.from(hashedPassword);
-          const oprfKeyBuffer = Buffer.from(response.oprfKey, 'hex');
-          const passwordPoint = curve.curve.pointFromX(hashedPasswordBuffer, true);
-          const scalar = new BN(oprfKeyBuffer);
-          const oprfOutput = passwordPoint.mul(scalar).encode('hex', false);
-          console.log(`oprfOutput: ${oprfOutput}`);
-          let credentials = {
+          eImgVfier = response.vImgVerifier;
+
+          // ##START OF aPAKE!!##
+          console.log(this.signInData);
+          let signInCredentials = {
             username: this.signInData.username,
-            passwordVerifier: oprfOutput,
             dataUrl: this.signatureDataUrl,
             imgVerifier: eImgVfier
           }
-          this.authService.authenticateUser(credentials).subscribe((data: any) => {
-            if (data.success) {
-              this.loginError = false;
-              this.authService.storeUserToken(data.token, data.user);
-              console.log(this.authService.tokenGetter());
-              this.router.navigate(['/profile']);
-            } else {
+          this.authService.startAuthenticate(signInCredentials).subscribe((response: any) => {
+            console.log(response);
+            if (!response.success) {
               this.loginError = true;
+            } else {
+              const curve = new eddsa('ed25519');
+              const hashedPassword = createHash('sha256').update(this.signInData.password).digest();
+              const hashedPasswordBuffer = Buffer.from(hashedPassword);
+              const oprfKeyBuffer = Buffer.from(response.oprfKey, 'hex');
+              const passwordPoint = curve.curve.pointFromX(hashedPasswordBuffer, true);
+              const scalar = new BN(oprfKeyBuffer);
+              const oprfOutput = passwordPoint.mul(scalar).encode('hex', false);
+              console.log(`oprfOutput: ${oprfOutput}`);
+              let credentials = {
+                username: this.signInData.username,
+                passwordVerifier: oprfOutput,
+                dataUrl: this.signatureDataUrl,
+                imgVerifier: eImgVfier
+              }
+              this.authService.authenticateUser(credentials).subscribe((data: any) => {
+                if (data.success) {
+                  this.loginError = false;
+                  this.authService.storeUserToken(data.token, data.user);
+                  console.log(this.authService.tokenGetter());
+                  this.router.navigate(['/profile']);
+                } else {
+                  this.loginError = true;
+                }
+              });
+              
             }
           });
-          
         }
       });
+
+      
     }
   }
 
