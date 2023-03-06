@@ -8,6 +8,7 @@ import { saveAs } from 'file-saver';
 import { GotchaService } from '@websack/gotcha';
 import { UserService } from '../services/user.service';
 import * as opaque from '../opaque/opaque';
+// import * as opaque from 'app/opaque/opaque.js';
 
 global.Buffer = Buffer;
 
@@ -68,7 +69,6 @@ export class SignupComponent {
   onSubmit(form: NgForm) {
     if (form.valid) {
       const uKey = this.gService.uKeyPrep(this.imgKey);
-      // const eImgVfier = this.gService.vHashEncrypt(this.imgVfierHash ,uKey, this.formData.password);
       const eImgVfier = this.gService.veHashEncrypt(this.imgVfierHash ,uKey);
       
       var username = {
