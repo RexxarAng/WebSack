@@ -8,7 +8,7 @@ import { saveAs } from 'file-saver';
 import { GotchaService } from '@websack/gotcha';
 import { UserService } from '../services/user.service';
 import * as opaque from '../opaque/opaque';
-// import * as opaque from 'app/opaque/opaque.js';
+// import * as opaque from '../opaque/opaque.js';
 
 global.Buffer = Buffer;
 

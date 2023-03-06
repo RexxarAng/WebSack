@@ -34,7 +34,8 @@
       "https": ["./node_modules/https-browserify"],
       "os": ["./node_modules/os-browserify"],
       "process": ["./node_modules/process"]
-    }
+    },
+    "allowJs": true // Obfuscation
   },
   "angularCompilerOptions": {
     "enableI18nLegacyMessageIdFormat": false,
