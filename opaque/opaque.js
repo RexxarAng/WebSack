@@ -6,7 +6,7 @@ const forge = require('node-forge');
 const fs = require('fs');
 
 // Define the elliptic curve to use (in this example, we use curve ed25519)
-const curve = elliptic.curves['ed25519'];
+const curve = elliptic.ec('ed25519');
 
 const file = './secrets.json';
 let secret, salt;
@@ -68,8 +68,7 @@ module.exports.decryptData = async function(data, key) {
 }
 
 module.exports.verifySignature = async function(data, signature, key) {
-    const curve2 = elliptic.ec('ed25519');
     const signatureBuffer = Buffer.from(signature, 'hex');
-    isValid = curve2.keyFromPublic(key, 'hex').verify(data, signatureBuffer);
+    isValid = curve.keyFromPublic(key, 'hex').verify(data, signatureBuffer);
     return isValid;
 }
