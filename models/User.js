@@ -12,7 +12,19 @@ const UserSchema = new mongoose.Schema({
         unique: true,
         required: true
     },
-    passwordVerifier: {
+    // passwordVerifier: {
+    //     type: String,
+    //     requireD: true
+    // },
+    encryptedEnvelope: {
+        type: String,
+        required: true
+    },
+    authTag: {
+        type: String,
+        required: true
+    },
+    clientPublicKey:{
         type: String,
         required: true
     },

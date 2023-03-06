@@ -4,10 +4,8 @@ import { Router } from '@angular/router';
 import { AuthService } from '../services/auth.service';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { SignaturepadComponent } from '../signaturepad/signaturepad.component'
-import { Buffer } from 'buffer';
-import { createHash } from 'crypto-browserify';
-import { eddsa, utils } from 'elliptic';
-import { BN } from 'bn.js';
+import * as opaque from '../opaque/opaque';
+
 
 @Component({
   selector: 'app-login',
@@ -72,7 +70,52 @@ export class LoginComponent {
   //   }
   // }
 
-  onSubmit(form: NgForm) {
+  // onSubmit(form: NgForm) {
+  //   if (form.valid) {
+  //     this.loginError = false
+  //     console.log(this.signInData);
+  //     let signInCredentials = {
+  //       username: this.signInData.username,
+  //       dataUrl: this.signatureDataUrl,
+  //       imgVerifier: this.imgVfierHash
+  //     }
+
+  //     this.authService.startAuthenticate(signInCredentials).subscribe((response: any) => {
+  //       console.log(response);
+  //       if (!response.success) {
+  //         this.loginError = true;
+  //       } else {
+  //         const curve = new eddsa('ed25519');
+  //         const hashedPassword = createHash('sha256').update(this.signInData.password).digest();
+  //         const hashedPasswordBuffer = Buffer.from(hashedPassword);
+  //         const oprfKeyBuffer = Buffer.from(response.oprfKey, 'hex');
+  //         const passwordPoint = curve.curve.pointFromX(hashedPasswordBuffer, true);
+  //         const scalar = new BN(oprfKeyBuffer);
+  //         const oprfOutput = passwordPoint.mul(scalar).encode('hex', false);
+  //         console.log(`oprfOutput: ${oprfOutput}`);
+  //         let credentials = {
+  //           username: this.signInData.username,
+  //           passwordVerifier: oprfOutput,
+  //           dataUrl: this.signatureDataUrl,
+  //           imgVerifier: this.imgVfierHash
+  //         }
+  //         this.authService.authenticateUser(credentials).subscribe((data: any) => {
+  //           if (data.success) {
+  //             this.loginError = false;
+  //             this.authService.storeUserToken(data.token, data.user);
+  //             console.log(this.authService.tokenGetter());
+  //             this.router.navigate(['/profile']);
+  //           } else {
+  //             this.loginError = true;
+  //           }
+  //         });
+          
+  //       }
+  //     });
+  //   }
+  // }
+
+  async onSubmit(form: NgForm) {
     if (form.valid) {
       this.loginError = false
       console.log(this.signInData);
@@ -81,39 +124,45 @@ export class LoginComponent {
         dataUrl: this.signatureDataUrl,
         imgVerifier: this.imgVfierHash
       }
-
-      this.authService.startAuthenticate(signInCredentials).subscribe((response: any) => {
+  
+      try {
+        const response: any = await this.authService.startAuthenticate(signInCredentials).toPromise();
         console.log(response);
         if (!response.success) {
           this.loginError = true;
         } else {
-          const curve = new eddsa('ed25519');
-          const hashedPassword = createHash('sha256').update(this.signInData.password).digest();
-          const hashedPasswordBuffer = Buffer.from(hashedPassword);
-          const oprfKeyBuffer = Buffer.from(response.oprfKey, 'hex');
-          const passwordPoint = curve.curve.pointFromX(hashedPasswordBuffer, true);
-          const scalar = new BN(oprfKeyBuffer);
-          const oprfOutput = passwordPoint.mul(scalar).encode('hex', false);
-          console.log(`oprfOutput: ${oprfOutput}`);
+          const rwdKey = opaque.oprfOutput(this.signInData.password, response.oprfKey)
+          console.log(`EncryptedEnvelope: ${response.encryptedEnvelope}`);
+          const envelope = opaque.decryptEnvelope(response.encryptedEnvelope, response.authTag, rwdKey);
+          console.log(`Envelope: ${envelope.serverPublicKey}`);
+          const currentTime = new Date().toISOString();
+          console.log(currentTime);
+          // const signedTimeObject = opaque.signData(currentTime, envelope.clientPrivateKey);
+          // console.log(signedTimeObject);
+          const encryptedData = await opaque.encryptData(currentTime, envelope.serverPublicKey);
+          console.log(`rwdKey: ${rwdKey}`);
+          console.log(`encryptedData: ${encryptedData}`);
+  
           let credentials = {
             username: this.signInData.username,
-            passwordVerifier: oprfOutput,
+            answer: encryptedData,
             dataUrl: this.signatureDataUrl,
             imgVerifier: this.imgVfierHash
           }
-          this.authService.authenticateUser(credentials).subscribe((data: any) => {
-            if (data.success) {
-              this.loginError = false;
-              this.authService.storeUserToken(data.token, data.user);
-              console.log(this.authService.tokenGetter());
-              this.router.navigate(['/profile']);
-            } else {
-              this.loginError = true;
-            }
-          });
-          
+          const data: any = await this.authService.authenticateUser(credentials).toPromise();
+          if (data.success) {
+            this.loginError = false;
+            this.authService.storeUserToken(data.token, data.user);
+            console.log(this.authService.tokenGetter());
+            this.router.navigate(['/profile']);
+          } else {
+            this.loginError = true;
+          }
         }
-      });
+      } catch (error) {
+        this.loginError = true;
+        console.log(error);
+      }
     }
   }
 

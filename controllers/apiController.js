@@ -1,15 +1,12 @@
 const mongoose = require('mongoose')
 const User = require('../models/User')
+const Key = require('../models/Key')
 const userValidator = require('../validators/userValidator')
 const bcrypt = require('bcrypt')
 const fs = require('fs')
 const rimraf = require('rimraf')
 const config = require('../config/database')
 const jwt = require('jsonwebtoken');
-// const tf = require('@tensorflow/tfjs-node');
-// const mobilenet = require('@tensorflow-models/mobilenet');
-// const { createCanvas, loadImage } = require('canvas');
-// const IMAGE_SIZE = 224;
 const Opaque = require('../opaque/opaque');
 
 let model = null;
@@ -43,21 +40,24 @@ function saveSignature(dataUrl, username) {
   }
 
 exports.startSignup = async (req, res, next) => {
-    console.log(req.body);
-    var username = req.body.username;
-    const usernameExists = await User.findOne({ username: username });
-    if (usernameExists) {
+    const userExists = await User.findOne(req.body);
+    if (userExists) {
         console.log("already exists");
         return res.json({
             success: false,
-            msg: 'Username already in use'
+            msg: 'User already exists'
         })
     }
+    var keyPair = await Opaque.generateServerKey();
+    const filter = { username: req.body.username };
+    const update = { privateKey: keyPair.privateKey, publicKey: keyPair.publicKey};
+    const options = { upsert: true, new: true };
+    const key = await Key.findOneAndUpdate(filter, update, options);
     return res.json({ 
         success: true,
-        oprfKey: Opaque.generateOPRFKey(username)
+        oprfKey: Opaque.generateOPRFKey(req.body.username),
+        serverPublicKey: key.publicKey
     });
-    
 }
 
 exports.signup = async (req, res, next) => {
@@ -131,8 +131,77 @@ exports.signup = async (req, res, next) => {
 };
 
 
+// exports.completeSignup = async (req, res, next) => {
+//     var { username, email, oprfOutput, dataUrl, imgVerifier, oprfKey } = req.body;
+//     console.log(req.body);
+//     if (!userValidator.validateEmail(email)) {
+//         return res.json({
+//             success: false,
+//             msg: "Invalid Email"
+//         });
+//     }
+
+//     if (!userValidator.validateDataUrl(dataUrl)) {
+//         return res.json({
+//             success: false,
+//             msg: "Invalid data url"
+//         })
+//     }
+    
+//     const emailExists = await User.findOne({ email: email });
+//     if (emailExists) {
+//         return res.json({
+//             success: false,
+//             msg: 'Email already in use'
+//         })
+//     }
+
+//     const usernameExists = await User.findOne({ username: username })
+
+//     if (usernameExists) {
+//         return res.json({
+//             success: false,
+//             msg: 'Username already in use'
+//         })
+//     }
+
+//     const filename = await saveSignature(dataUrl, username);
+
+//     // Generate a random salt
+//     const salt = await bcrypt.genSalt(10);
+//     const passwordVerifierHash = await bcrypt.hash(oprfOutput, salt);
+
+//     let newUser = new User({
+//         username: username,
+//         email: email,
+//         passwordVerifier: passwordVerifierHash,
+//         oprfKey: oprfKey,
+//         imgName: filename,
+//         imgVerifier: imgVerifier
+//     });
+
+//     User.create(newUser, (err, user) => {
+//         if (err) {
+//             rimraf(`./uploads/users/${username}`, (err) => {
+//                 if (err) console.error('Error occurred during directory deletion:', err);
+//                 else console.log(`Directory ${dirPath} deleted successfully`);
+//             });
+//             return res.json({
+//                 success: false,
+//                 msg: err
+//             });
+//         } else {
+//             return res.json({
+//                 success: true,
+//                 msg: "User created successfully!"
+//             })
+//         }
+
+//     });
+// };
+
 exports.completeSignup = async (req, res, next) => {
-    var { username, email, oprfOutput, dataUrl, imgVerifier, oprfKey } = req.body;
+    var { username, email, encryptedEnvelope, authTag, clientPublicKey, dataUrl, imgVerifier, oprfKey } = req.body;
     console.log(req.body);
     if (!userValidator.validateEmail(email)) {
         return res.json({
@@ -168,21 +237,25 @@ exports.completeSignup = async (req, res, next) => {
     const filename = await saveSignature(dataUrl, username);
 
     // Generate a random salt
-    const salt = await bcrypt.genSalt(10);
-    const passwordVerifierHash = await bcrypt.hash(oprfOutput, salt);
+    // const salt = await bcrypt.genSalt(10);
+    // const passwordVerifierHash = await bcrypt.hash(oprfOutput, salt);
 
     let newUser = new User({
         username: username,
         email: email,
-        passwordVerifier: passwordVerifierHash,
+        encryptedEnvelope: encryptedEnvelope,
+        authTag: authTag,
+        clientPublicKey: clientPublicKey,
         oprfKey: oprfKey,
         imgName: filename,
         imgVerifier: imgVerifier
     });
+    
+    const dirPath = `./uploads/users/${username}`;
 
     User.create(newUser, (err, user) => {
         if (err) {
-            rimraf(`./uploads/users/${username}`, (err) => {
+            rimraf(dirPath, { rm: '-rf' }, (err) => {
                 if (err) console.error('Error occurred during directory deletion:', err);
                 else console.log(`Directory ${dirPath} deleted successfully`);
             });
@@ -199,102 +272,6 @@ exports.completeSignup = async (req, res, next) => {
 
     });
 };
-
-
-async function loadModel() {
-    if (model == null) {
-        model = await mobilenet.load();
-    }
-}
-
-// async function verifySignature(candidateSignaturePath, originalSignaturePath, username) {
-//     console.log("verifying signature...");
-//     const signaturePath = `./uploads/users/${username}/signatures`;
-//     const candidateSignature = await loadImage(`${signaturePath}/${candidateSignaturePath}`);
-//     const originalSignature = await loadImage(`${signaturePath}/${originalSignaturePath}`);
-  
-//     const model = await mobilenet.load();
-  
-//     // Create an HTMLCanvasElement for the candidate signature
-//     const canvas1 = createCanvas(candidateSignature.width, candidateSignature.height);
-//     const ctx1 = canvas1.getContext('2d');
-//     ctx1.drawImage(candidateSignature, 0, 0);
-  
-//     // Create an HTMLCanvasElement for the original signature
-//     const canvas2 = createCanvas(originalSignature.width, originalSignature.height);
-//     const ctx2 = canvas2.getContext('2d');
-//     ctx2.drawImage(originalSignature, 0, 0);
-  
-//     // Convert the HTMLCanvasElements to tensors
-//     const tensor1 = tf.browser.fromPixels(canvas1).toFloat();
-//     const tensor2 = tf.browser.fromPixels(canvas2).toFloat();
-  
-//     // Classify the candidate signature and the original signature
-//     const predictions1 = await model.classify(tensor1);
-//     const predictions2 = await model.classify(tensor2);
-  
-//   // Get the top predicted class and its probability for the candidate signature and the original signature
-//     const topPrediction1 = predictions1[0];
-//     const topPrediction2 = predictions2[0];
-
-//     // Compare the top predicted classes and return their similarity and the confidence level of the model
-//     const cosineSimilarity = topPrediction1.className === topPrediction2.className ? 1 : 0;
-//     const confidenceLevel = topPrediction1.probability;
-
-//     return { cosineSimilarity, confidenceLevel };
-// }
-  
-// exports.authenticate = async (req, res, next) => {
-//     const { username, password, dataUrl, imgVerifier } = req.body;
-//     User.getUserByUsername(username, async (err, user) => {
-//         if (err) throw err;
-
-//         if (!user) {
-//             return res.json({
-//                 success: false,
-//                 msg: "Wrong username or password or image and passcode"
-//             });
-//         }
-//         if (user.imgVerifier != imgVerifier) {
-//             return res.json({
-//                 success: false,
-//                 msg: "Wrong username or password or image and passcode"
-//             });
-//         }
-//         User.comparePassword(password, user.password, async (err, isMatch) => {
-//             if (err) throw err;
-
-//             if (isMatch) {
-//                 // const filename = await saveSignature(dataUrl, username);
-//                 // console.log(filename);
-//                 // const similarity = await verifySignature(filename, user.imgName, username);
-//                 // console.log(similarity)
-//                 const payload = {
-//                     id: user._id,
-//                     username: user.username,
-//                     email: user.email
-//                 }
-//                 const token = jwt.sign(payload, config.secret, {
-//                     expiresIn: 86400 // 24 hours
-//                 });
-//                 res.json({
-//                     success: true,
-//                     token: `JWT ${token}`,
-//                     user: {
-//                         id: user._id,
-//                         username: user.username,
-//                         email: user.email
-//                     }
-//                 })
-//             } else {
-//                 res.json({
-//                     success: false,
-//                     msg: "Wrong username or password or image and passcode"
-//                 })
-//             }
-//         });
-//     });
-// };
 
 exports.startAuthenticate = async (req, res, next) => {
     const { username, dataUrl, imgVerifier } = req.body;
@@ -314,13 +291,99 @@ exports.startAuthenticate = async (req, res, next) => {
         }
         return res.json({
             success: true,
-            oprfKey: user.oprfKey
+            oprfKey: user.oprfKey,
+            encryptedEnvelope: user.encryptedEnvelope,
+            authTag: user.authTag
         });
     });
 }
 
+// exports.authenticate = async (req, res, next) => {
+//     const { username, passwordVerifier, dataUrl, imgVerifier } = req.body;
+//     console.log(req.body);
+//     User.getUserByUsername(username, async (err, user) => {
+//         if (err) throw err;
+
+//         if (!user) {
+//             return res.json({
+//                 success: false,
+//                 msg: "Wrong username or password or image and passcode"
+//             });
+//         }
+//         await bcrypt.compare(passwordVerifier, user.passwordVerifier, async (err, isMatch) => {
+//             if (err) throw err;
+//             if (!isMatch) {
+//                 return res.json({
+//                     success: false,
+//                     msg: "Wrong username or password or image and passcode"
+//                 })
+//             }
+
+//             const payload = {
+//                 id: user._id,
+//                 username: user.username,
+//                 email: user.email
+//             }
+//             const token = jwt.sign(payload, config.secret, {
+//                 expiresIn: 86400 // 24 hours
+//             });
+//             res.json({
+//                 success: true,
+//                 token: `JWT ${token}`,
+//                 user: {
+//                     id: user._id,
+//                     username: user.username,
+//                     email: user.email
+//                 }
+//             })
+//         });
+//     });
+// };
+
+// exports.authenticate = async (req, res, next) => {
+//     const { username, passwordVerifier, dataUrl, imgVerifier } = req.body;
+//     console.log(req.body);
+//     User.getUserByUsername(username, async (err, user) => {
+//         if (err) throw err;
+
+//         if (!user) {
+//             return res.json({
+//                 success: false,
+//                 msg: "Wrong username or password or image and passcode"
+//             });
+//         }
+//         await bcrypt.compare(passwordVerifier, user.passwordVerifier, async (err, isMatch) => {
+//             if (err) throw err;
+//             if (!isMatch) {
+//                 return res.json({
+//                     success: false,
+//                     msg: "Wrong username or password or image and passcode"
+//                 })
+//             }
+
+//             const payload = {
+//                 id: user._id,
+//                 username: user.username,
+//                 email: user.email
+//             }
+//             const token = jwt.sign(payload, config.secret, {
+//                 expiresIn: 86400 // 24 hours
+//             });
+//             res.json({
+//                 success: true,
+//                 token: `JWT ${token}`,
+//                 user: {
+//                     id: user._id,
+//                     username: user.username,
+//                     email: user.email
+//                 }
+//             })
+//         });
+//     });
+// };
+
 exports.authenticate = async (req, res, next) => {
-    const { username, passwordVerifier, dataUrl, imgVerifier } = req.body;
+    const { username, answer, dataUrl, imgVerifier } = req.body;
     console.log(req.body);
     User.getUserByUsername(username, async (err, user) => {
         if (err) throw err;
@@ -331,32 +394,65 @@ exports.authenticate = async (req, res, next) => {
                 msg: "Wrong username or password or image and passcode"
             });
         }
-        await bcrypt.compare(passwordVerifier, user.passwordVerifier, async (err, isMatch) => {
+
+        Key.findOne({ username: username }, async (err, key) => {
             if (err) throw err;
-            if (!isMatch) {
+
+            if (!key) {
                 return res.json({
                     success: false,
-                    msg: "Wrong username or password or image and passcode"
-                })
+                    msg: "Something has happened! Please reset your password"
+                });  
             }
 
-            const payload = {
-                id: user._id,
-                username: user.username,
-                email: user.email
-            }
-            const token = jwt.sign(payload, config.secret, {
-                expiresIn: 86400 // 24 hours
-            });
-            res.json({
-                success: true,
-                token: `JWT ${token}`,
-                user: {
+            try {
+                console.log(req.body.answer);
+                let dateString = await Opaque.decryptData(req.body.answer, key.privateKey);
+                console.log(`Date Given: ${dateString}`);
+    
+                // Convert the date string to a Date object
+                const date = new Date(dateString);
+    
+                // Get the current time in milliseconds
+                const now = Date.now();
+    
+                const diff = now - date.getTime();
+    
+                // Check if the difference is less than or equal to 15 seconds
+                if (diff <= 15000) {
+                    console.log('The date is within the last 15 seconds');
+                } else {
+                    console.log('The date is not within the last 15 seconds');
+                    return res.json({
+                        success: false,
+                        msg: "Something has happened! Please reset your password"
+                    });
+                }
+    
+                const payload = {
                     id: user._id,
                     username: user.username,
                     email: user.email
                 }
-            })
+                const token = jwt.sign(payload, config.secret, {
+                    expiresIn: 86400 // 24 hours
+                });
+                res.json({
+                    success: true,
+                    token: `JWT ${token}`,
+                    user: {
+                        id: user._id,
+                        username: user.username,
+                        email: user.email
+                    }
+                })
+            } catch(error) {
+                console.log(`unable to decrypt: ${error}`);
+                return res.json({
+                    success: false,
+                    msg: "Wrong username or password or image and passcode"
+                });
+            }
         });
     });
 };
