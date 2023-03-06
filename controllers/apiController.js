@@ -130,76 +130,6 @@ exports.signup = async (req, res, next) => {
     });
 };
 
-
-// exports.completeSignup = async (req, res, next) => {
-//     var { username, email, oprfOutput, dataUrl, imgVerifier, oprfKey } = req.body;
-//     console.log(req.body);
-//     if (!userValidator.validateEmail(email)) {
-//         return res.json({
-//             success: false,
-//             msg: "Invalid Email"
-//         });
-//     }
-
-//     if (!userValidator.validateDataUrl(dataUrl)) {
-//         return res.json({
-//             success: false,
-//             msg: "Invalid data url"
-//         })
-//     }
-    
-//     const emailExists = await User.findOne({ email: email });
-//     if (emailExists) {
-//         return res.json({
-//             success: false,
-//             msg: 'Email already in use'
-//         })
-//     }
-
-//     const usernameExists = await User.findOne({ username: username })
-
-//     if (usernameExists) {
-//         return res.json({
-//             success: false,
-//             msg: 'Username already in use'
-//         })
-//     }
-
-//     const filename = await saveSignature(dataUrl, username);
-
-//     // Generate a random salt
-//     const salt = await bcrypt.genSalt(10);
-//     const passwordVerifierHash = await bcrypt.hash(oprfOutput, salt);
-
-//     let newUser = new User({
-//         username: username,
-//         email: email,
-//         passwordVerifier: passwordVerifierHash,
-//         oprfKey: oprfKey,
-//         imgName: filename,
-//         imgVerifier: imgVerifier
-//     });
-
-//     User.create(newUser, (err, user) => {
-//         if (err) {
-//             rimraf(`./uploads/users/${username}`, (err) => {
-//                 if (err) console.error('Error occurred during directory deletion:', err);
-//                 else console.log(`Directory ${dirPath} deleted successfully`);
-//             });
-//             return res.json({
-//                 success: false,
-//                 msg: err
-//             });
-//         } else {
-//             return res.json({
-//                 success: true,
-//                 msg: "User created successfully!"
-//             })
-//         }
-
-//     });
-// };
-
 exports.completeSignup = async (req, res, next) => {
     var { username, email, encryptedEnvelope, authTag, clientPublicKey, dataUrl, imgVerifier, oprfKey } = req.body;
     console.log(req.body);
@@ -235,10 +165,6 @@ exports.completeSignup = async (req, res, next) => {
     }
 
     const filename = await saveSignature(dataUrl, username);
-
-    // Generate a random salt
-    // const salt = await bcrypt.genSalt(10);
-    // const passwordVerifierHash = await bcrypt.hash(oprfOutput, salt);
 
     let newUser = new User({
         username: username,
