@@ -270,6 +270,13 @@ exports.authenticate = async (req, res, next) => {
                 dataObject = JSON.parse(dataObject);
                 let isVerified = await Opaque.verifySignature(dataObject.data, dataObject.signature, user.clientPublicKey);
                 console.log(`Is Verified: ${isVerified}`);
+
+                if (!isVerified) {
+                    return res.json({
+                        success: false,
+                        msg: "Something has happened! Please reset your password"
+                    });
+                }
                 // Convert the date string to a Date object
                 const date = new Date(dataObject.data);
     
