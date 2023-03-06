@@ -153,9 +153,9 @@ export class LoginComponent {
           console.log(`Envelope: ${envelope.serverPublicKey}`);
           const currentTime = new Date().toISOString();
           console.log(currentTime);
-          // const signedTimeObject = opaque.signData(currentTime, envelope.clientPrivateKey);
-          // console.log(signedTimeObject);
-          const encryptedData = await opaque.encryptData(currentTime, envelope.serverPublicKey);
+          const signedTimeObject = await opaque.signData(currentTime, envelope.clientPrivateKey);
+          console.log(signedTimeObject);
+          const encryptedData = await opaque.encryptData(JSON.stringify(signedTimeObject), envelope.serverPublicKey);
           console.log(`rwdKey: ${rwdKey}`);
           console.log(`encryptedData: ${encryptedData}`);
   

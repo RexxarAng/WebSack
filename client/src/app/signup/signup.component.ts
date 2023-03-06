@@ -65,77 +65,6 @@ export class SignupComponent {
     // do something with the dataURL, such as sending it to the backend
   }
 
-  // onSubmit(form: NgForm) {
-  //   if (form.valid) {
-  //       // Send the registration data to the server
-  //       var userData = {
-  //         username: this.formData.username,
-  //         email: this.formData.email,
-  //         password: this.formData.password,
-  //         dataUrl: this.signatureDataUrl
-  //       };
-  //       this.authService.signup(userData)
-  //       .subscribe((response: any) => {
-  //         console.log(response)
-  //         if (response.success) {
-  //           this.modalService.open(this.signupSuccessModal);
-  //           setTimeout(() => {
-  //             this.modalService.dismissAll();
-  //             this.router.navigate(['login']);
-  //           }, 5000);  //5s
-  //         } else {
-  //           this.message = response.msg;
-  //           this.modalService.open(this.signupFailureModal);
-  //         }
-  //       });
-  //   }
-  // }
-
-  // onSubmit(form: NgForm) {
-  //   if (form.valid) {
-  //     // const uKey = this.gService.uKeyPrep(this.imgKey);
-  //     // const eImgVfier = this.gService.vHashEncrypt(this.formData.imgVfierHash ,uKey);
-  //     // console.log("encImgVfier:"+eImgVfier);
-  //     var username = {
-  //       username: this.formData.username
-  //     }
-  //     // Get OPRF Key
-  //     this.authService.startSignup(username).subscribe((response: any) => {
-  //       console.log(response);
-  //       if(response.success) {
-  //         const oprfOutput = opaque.oprfOutput(this.formData.password, response.oprfKey);
-  //         console.log(`oprfOutput: ${oprfOutput}`);
-  //         // Send the registration data to the server
-  //         var userData = {
-  //           username: this.formData.username,
-  //           email: this.formData.email,
-  //           oprfOutput: oprfOutput,
-  //           dataUrl: this.signatureDataUrl,
-  //           imgVerifier: this.imgVfierHash,
-  //           oprfKey: response.oprfKey
-  //         };
-  //         this.authService.completeSignup(userData)
-  //         .subscribe((response: any) => {
-  //           console.log(response)
-  //           if (response.success) {
-  //             this.serverProof = response.serverProof;
-  //             this.modalService.open(this.signupSuccessModal);
-  //             setTimeout(() => {
-  //               this.modalService.dismissAll();
-  //               this.router.navigate(['login']);
-  //             }, 5000);  //5s
-  //           } else {
-  //             this.message = response.msg;
-  //             this.modalService.open(this.signupFailureModal);
-  //           }
-  //         });
-  //       }
-  //     });
-     
-  //   }
-  // }
-
-
   onSubmit(form: NgForm) {
     if (form.valid) {
       const uKey = this.gService.uKeyPrep(this.imgKey);
@@ -159,7 +88,7 @@ export class SignupComponent {
           console.log(`encryptedEnvelope: ${encryptedOutput.encryptedEnvelope}`);
 
           console.log(`rwdKey: ${rwdKey}`);
-
+          
           const decryptEnvelope = opaque.decryptEnvelope(encryptedOutput.encryptedEnvelope, encryptedOutput.authTag, rwdKey);
           console.log(`envelope: ${decryptEnvelope}`);
           // Send the registration data to the server

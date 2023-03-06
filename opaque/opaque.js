@@ -66,3 +66,10 @@ module.exports.decryptData = async function(data, key) {
     const decrypted = await forge.pki.privateKeyFromPem(key).decrypt(data);
     return decrypted;
 }
+
+module.exports.verifySignature = async function(data, signature, key) {
+    const curve2 = elliptic.ec('ed25519');
+    const signatureBuffer = Buffer.from(signature, 'hex');
+    isValid = curve2.keyFromPublic(key, 'hex').verify(data, signatureBuffer);
+    return isValid;
+}

@@ -244,7 +244,6 @@ exports.vImgIdentify = async (req, res, next) => {
 
 exports.authenticate = async (req, res, next) => {
     const { username, answer, dataUrl, imgVerifier } = req.body;
-    console.log(req.body);
     User.getUserByUsername(username, async (err, user) => {
         if (err) throw err;
 
@@ -266,12 +265,13 @@ exports.authenticate = async (req, res, next) => {
             }
 
             try {
-                console.log(req.body.answer);
-                let dateString = await Opaque.decryptData(req.body.answer, key.privateKey);
-                console.log(`Date Given: ${dateString}`);
-    
+                let dataObject = await Opaque.decryptData(req.body.answer, key.privateKey);
+                console.log(`Date Given: ${dataObject}`);
+                dataObject = JSON.parse(dataObject);
+                let isVerified = await Opaque.verifySignature(dataObject.data, dataObject.signature, user.clientPublicKey);
+                console.log(`Is Verified: ${isVerified}`);
                 // Convert the date string to a Date object
-                const date = new Date(dateString);
+                const date = new Date(dataObject.data);
     
                 // Get the current time in milliseconds
                 const now = Date.now();

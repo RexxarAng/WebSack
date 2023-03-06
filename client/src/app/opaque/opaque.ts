@@ -85,12 +85,9 @@ export async function encryptData(data: any, key: string) {
     return forge.util.encode64(encrypted);
 }
 
-// export async function signData(data: any, key: string) {
-//     const sign = createSign('sha256');
-//     sign.write(data);
-//     sign.end();
-//     const privateKeyBuffer = Buffer.from(key, 'hex');
-//     const signature = sign.sign(privateKeyBuffer).toString('base64');
-//     return { "data": data, "signature": signature };
-// }
+export async function signData(data: any, key: string) {
+    const privateKeyBuffer = Buffer.from(key, 'hex');
+    const signature = await curve.sign(data, privateKeyBuffer);
+    return { data: data, signature: Buffer.from(signature.toDER()).toString('hex') };
+}
 
