@@ -39,6 +39,13 @@ export class AuthService {
         return this.http.post(url, user);
     }
 
+    // JK
+    verifyUserImg(user: any) {
+        const url = `${this.apiUrl}/imgVerify`
+        return this.http.post(url, user);
+    }
+
+
     tokenGetter() {
         return sessionStorage.getItem('id_token');
       }

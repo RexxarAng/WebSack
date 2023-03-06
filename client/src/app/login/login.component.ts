@@ -5,7 +5,7 @@ import { AuthService } from '../services/auth.service';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { SignaturepadComponent } from '../signaturepad/signaturepad.component'
 import * as opaque from '../opaque/opaque';
-
+import { GotchaService } from '@websack/gotcha';
 
 @Component({
   selector: 'app-login',
@@ -22,11 +22,13 @@ export class LoginComponent {
   signInData: any = {};
   signatureDataUrl: string = "";
   imgVfierHash: string = "";
+  imgKey: string = "";
 
   constructor(
     private router: Router,
     private authService: AuthService,
     private modalService: NgbModal,
+    private gService: GotchaService
   ) {}
 
   showSignatureModal(event: Event) {
@@ -41,6 +43,7 @@ export class LoginComponent {
   handleGotchaData(gotchaData: any) {
     this.signatureDataUrl = gotchaData.dataUrl;
     this.imgVfierHash = gotchaData.imgVfier;
+    this.imgKey = gotchaData.imgKey;
     // do something with the dataURL, such as sending it to the backend
   }
 
@@ -117,14 +120,26 @@ export class LoginComponent {
 
   async onSubmit(form: NgForm) {
     if (form.valid) {
-      this.loginError = false
-      console.log(this.signInData);
+       // Gotcha
+      const uKey = this.gService.uKeyPrep(this.imgKey)
+      var eImgVfier = "";
+      let findUsername = { username: this.signInData.username }
+      try {
+        const response: any = await this.authService.verifyUserImg(findUsername).toPromise();
+        if (!response.success || !(this.gService.vHashVerify(response.vImgVerifier,this.imgVfierHash, uKey))) {
+          this.loginError = true;
+        } else {
+          eImgVfier = response.vImgVerifier;
+        }
+      } catch (error) {
+        this.loginError = true;
+        console.log(error);
+      }
       let signInCredentials = {
         username: this.signInData.username,
         dataUrl: this.signatureDataUrl,
-        imgVerifier: this.imgVfierHash
+        imgVerifier: eImgVfier
       }
-  
       try {
         const response: any = await this.authService.startAuthenticate(signInCredentials).toPromise();
         console.log(response);
@@ -132,6 +147,7 @@ export class LoginComponent {
           this.loginError = true;
         } else {
           const rwdKey = opaque.oprfOutput(this.signInData.password, response.oprfKey)
+          console.log(`rwdKey: ${rwdKey}`)
           console.log(`EncryptedEnvelope: ${response.encryptedEnvelope}`);
           const envelope = opaque.decryptEnvelope(response.encryptedEnvelope, response.authTag, rwdKey);
           console.log(`Envelope: ${envelope.serverPublicKey}`);
@@ -147,7 +163,7 @@ export class LoginComponent {
             username: this.signInData.username,
             answer: encryptedData,
             dataUrl: this.signatureDataUrl,
-            imgVerifier: this.imgVfierHash
+            imgVerifier: eImgVfier
           }
           const data: any = await this.authService.authenticateUser(credentials).toPromise();
           if (data.success) {
