@@ -3,13 +3,27 @@ const elliptic = require('elliptic');
 const serverOprfKey = crypto.randomBytes(32);
 const bigInt = require('big-integer');
 const forge = require('node-forge');
+const fs = require('fs');
 
 // Define the elliptic curve to use (in this example, we use curve ed25519)
 const curve = elliptic.curves['ed25519'];
 
-// Define a secret value and a random salt
-const secret = 'h@ckerman@websack';
-const salt = crypto.randomBytes(16);
+const file = './secrets.json';
+let secret, salt;
+
+// Check if the file exists
+if (fs.existsSync(file)) {
+    // Read the secret and salt from the file
+    const data = JSON.parse(fs.readFileSync(file));
+    secret = data.secret;
+    salt = Buffer.from(data.salt, 'hex');
+  } else {
+    // Generate a new secret and salt
+    secret = 'h@ckerman@websack';
+    salt = crypto.randomBytes(16);
+    // Write the secret and salt to the file
+    fs.writeFileSync(file, JSON.stringify({ secret, salt: salt.toString('hex') }));
+}
 console.log(`salt: ${salt.toString('hex')}`);
 
 // Derive the master OPRF key from the secret and salt using a KDF
