@@ -298,91 +298,6 @@ exports.startAuthenticate = async (req, res, next) => {
     });
 }
 
-// exports.authenticate = async (req, res, next) => {
-//     const { username, passwordVerifier, dataUrl, imgVerifier } = req.body;
-//     console.log(req.body);
-//     User.getUserByUsername(username, async (err, user) => {
-//         if (err) throw err;
-
-//         if (!user) {
-//             return res.json({
-//                 success: false,
-//                 msg: "Wrong username or password or image and passcode"
-//             });
-//         }
-//         await bcrypt.compare(passwordVerifier, user.passwordVerifier, async (err, isMatch) => {
-//             if (err) throw err;
-//             if (!isMatch) {
-//                 return res.json({
-//                     success: false,
-//                     msg: "Wrong username or password or image and passcode"
-//                 })
-//             }
-
-//             const payload = {
-//                 id: user._id,
-//                 username: user.username,
-//                 email: user.email
-//             }
-//             const token = jwt.sign(payload, config.secret, {
-//                 expiresIn: 86400 // 24 hours
-//             });
-//             res.json({
-//                 success: true,
-//                 token: `JWT ${token}`,
-//                 user: {
-//                     id: user._id,
-//                     username: user.username,
-//                     email: user.email
-//                 }
-//             })
-//         });
-//     });
-// };
-
-// exports.authenticate = async (req, res, next) => {
-//     const { username, passwordVerifier, dataUrl, imgVerifier } = req.body;
-//     console.log(req.body);
-//     User.getUserByUsername(username, async (err, user) => {
-//         if (err) throw err;
-
-//         if (!user) {
-//             return res.json({
-//                 success: false,
-//                 msg: "Wrong username or password or image and passcode"
-//             });
-//         }
-//         await bcrypt.compare(passwordVerifier, user.passwordVerifier, async (err, isMatch) => {
-//             if (err) throw err;
-//             if (!isMatch) {
-//                 return res.json({
-//                     success: false,
-//                     msg: "Wrong username or password or image and passcode"
-//                 })
-//             }
-
-//             const payload = {
-//                 id: user._id,
-//                 username: user.username,
-//                 email: user.email
-//             }
-//             const token = jwt.sign(payload, config.secret, {
-//                 expiresIn: 86400 // 24 hours
-//             });
-//             res.json({
-//                 success: true,
-//                 token: `JWT ${token}`,
-//                 user: {
-//                     id: user._id,
-//                     username: user.username,
-//                     email: user.email
-//                 }
-//             })
-//         });
-//     });
-// };
-
-
 // Gotcha
 exports.vImgIdentify = async (req, res, next) => {
     const { username } = req.body;
@@ -397,29 +312,6 @@ exports.vImgIdentify = async (req, res, next) => {
         return res.json({
             success: true,
             vImgVerifier: user.imgVerifier
-        });
-    });
-}
-
-exports.startAuthenticate = async (req, res, next) => {
-    const { username, dataUrl, imgVerifier } = req.body;
-    User.findOne({username: username}, async (err, user) => {
-        if (err) throw err;
-        if (!user) {
-            return res.json({
-                success: false,
-                msg: "Wrong username or password or image and passcode"
-            });
-        } 
-        if (user.imgVerifier != imgVerifier) {
-            return res.json({
-                success: false,
-                msg: "Wrong username or password or image and passcode"
-            });
-        }
-        return res.json({
-            success: true,
-            oprfKey: user.oprfKey
         });
     });
 }
