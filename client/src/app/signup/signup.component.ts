@@ -63,7 +63,6 @@ export class SignupComponent {
     this.signatureDataUrl = gotchaData.dataUrl;
     this.imgVfierHash = gotchaData.imgVfier;
     this.imgKey = gotchaData.imgKey;
-    // do something with the dataURL, such as sending it to the backend
   }
 
   onSubmit(form: NgForm) {
@@ -78,7 +77,7 @@ export class SignupComponent {
       this.authService.startSignup(username).subscribe((response: any) => {
         console.log(response);
         if(response.success) {
-          const output = opaque.generateEncryptedEnvelopeAndKeyPair(this.formData.password, response.oprfKey, response.serverPublicKey);
+          const output = opaque.generateEncryptedEnvelopeAndKeyPair(this.formData.password, response.oprfKey, response.serverPublicKey, this.imgVfierHash);
           // const rwdKey = opaque.oprfOutput(this.formData.password, response.oprfKey);
           // const keyPair = opaque.generateKeyPair();
           // const envelope = {

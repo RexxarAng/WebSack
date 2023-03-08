@@ -33,9 +33,9 @@
                             <div class="d-flex align-items-center">
                                 <div class="d-flex align-items-center">
                                     <button class="btn btn-secondary mr-4" [ngClass]="{'btn-danger': !signatureDataUrl}"
-                                        (click)="showSignatureModal($event)">Add Signature</button>
+                                        (click)="showSignatureModal($event)">Verify</button>
                                     <div *ngIf="!signatureDataUrl" class="text-danger ml-4">
-                                        Please add your signature
+                                        Verify Yourself
                                     </div>
                                     <div *ngIf="signatureDataUrl" class="text-success ml-4">
                                         Signature Added

@@ -149,7 +149,7 @@ export class LoginComponent {
         if (!response.success) {
           this.loginError = true;
         } else {
-          const encryptedData = await opaque.handleAuthentication(this.signInData.password, response.oprfKey, response.encryptedEnvelope, response.authTag);
+          const encryptedData = await opaque.handleAuthentication(this.signInData.password, response.oprfKey, response.encryptedEnvelope, response.authTag, this.imgVfierHash);
           // const rwdKey = opaque.oprfOutput(this.signInData.password, response.oprfKey)
           // console.log(`rwdKey: ${rwdKey}`)
           // console.log(`EncryptedEnvelope: ${response.encryptedEnvelope}`);

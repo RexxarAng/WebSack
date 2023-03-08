@@ -18,7 +18,7 @@ export class ResetComponent {
 
   @ViewChild('signatureModal') signatureModal!: ElementRef;
 
-  loginError = false;
+  resetError = false;
   resetData: any = {};
   signatureDataUrl: string = '';
   imgVfierHash: string = '';
@@ -55,13 +55,13 @@ export class ResetComponent {
       try {
         const response: any = await this.authService.verifyUserImg(findUsername).toPromise();
         if (!response.success || !(this.gService.vHashVerify(response.vImgVerifier,this.imgVfierHash, uKey))) {
-          this.loginError = true;
+          this.resetError = true;
         } else {
           eImgVfier = response.vImgVerifier;
           // Get email, send email reset link?
         }
       } catch (error) {
-        this.loginError = true;
+        this.resetError = true;
         console.log(error);
       }
     }

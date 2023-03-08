@@ -33,9 +33,9 @@
                             <div class="d-flex align-items-center">
                                 <div class="d-flex align-items-center">
                                     <button class="btn btn-secondary mr-4" [ngClass]="{'btn-danger': !signatureDataUrl}"
-                                        (click)="showSignatureModal($event)">Add Signature</button>
+                                        (click)="showSignatureModal($event)">Verify</button>
                                     <div *ngIf="!signatureDataUrl" class="text-danger ml-4">
-                                        Please add your signature
+                                        Verify Yourself
                                     </div>
                                     <div *ngIf="signatureDataUrl" class="text-success ml-4">
                                         Signature Added
@@ -44,9 +44,9 @@
                             </div>
                         </div>
                         <button class="btn btn-lg btn-primary btn-block" type="submit">Reset</button>
-                        <ngb-toast class="mt-3" *ngIf="loginError" header="Login Error" [autohide]="true"
-                            (hide)="loginError=false">
-                            Incorrect username or password. Please try again.
+                        <ngb-toast class="mt-3" *ngIf="resetError" header="Login Error" [autohide]="true"
+                            (hide)="resetError=false">
+                            Invalid username. Please try again.
                         </ngb-toast>
                     </form>
                 </div>
