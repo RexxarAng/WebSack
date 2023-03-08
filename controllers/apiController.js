@@ -265,31 +265,10 @@ exports.authenticate = async (req, res, next) => {
             }
 
             try {
-                let dataObject = await Opaque.decryptData(req.body.answer, key.privateKey);
-                console.log(`Date Given: ${dataObject}`);
-                dataObject = JSON.parse(dataObject);
-                let isVerified = await Opaque.verifySignature(dataObject.data, dataObject.signature, user.clientPublicKey);
-                console.log(`Is Verified: ${isVerified}`);
+                // Decrypt the data and verify its signature before checking timestamp is within 15 seconds
+                let isVerified = await Opaque.decryptAndVerify(req.body.answer, key.privateKey, user.clientPublicKey);
 
                 if (!isVerified) {
-                    return res.json({
-                        success: false,
-                        msg: "Something has happened! Please reset your password"
-                    });
-                }
-                // Convert the date string to a Date object
-                const date = new Date(dataObject.data);
-    
-                // Get the current time in milliseconds
-                const now = Date.now();
-    
-                const diff = now - date.getTime();
-    
-                // Check if the difference is less than or equal to 15 seconds
-                if (diff <= 15000) {
-                    console.log('The date is within the last 15 seconds');
-                } else {
-                    console.log('The date is not within the last 15 seconds');
                     return res.json({
                         success: false,
                         msg: "Something has happened! Please reset your password"

@@ -38,7 +38,7 @@ export function generateKeyPair() {
 }
 
 // Function to encrypt using RWD key
-export function encryptWithRWDKey(envelope: any, rwdKey: string) {
+export function encryptEnvelope(envelope: any, rwdKey: string) {
     const envelopeString = JSON.stringify(envelope);
     const inputBuffer = Buffer.from(envelopeString, 'utf8');
     const cipher = createCipher('aes-256-gcm', rwdKey);

@@ -84,7 +84,7 @@ export class SignupComponent {
             clientPrivateKey: keyPair.privateKey,
             serverPublicKey: response.serverPublicKey,
           }
-          const encryptedOutput = opaque.encryptWithRWDKey(envelope, rwdKey);
+          const encryptedOutput = opaque.encryptEnvelope(envelope, rwdKey);
           console.log(`encryptedEnvelope: ${encryptedOutput.encryptedEnvelope}`);
 
           console.log(`rwdKey: ${rwdKey}`);

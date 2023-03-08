@@ -49,7 +49,7 @@ module.exports.generateOPRFKey = function(username) {
 
 module.exports.generateServerKey = function() {
     // Generate RSA key pair
-    const keyPair = forge.pki.rsa.generateKeyPair({bits: 2048});
+    const keyPair = forge.pki.rsa.generateKeyPair({bits: 4096});
 
     // Convert public key to PEM format
     const publicKeyPem = forge.pki.publicKeyToPem(keyPair.publicKey);
@@ -61,13 +61,42 @@ module.exports.generateServerKey = function() {
 
 }
 
-module.exports.decryptData = async function(data, key) {
+module.exports.decryptAndVerify = async function(answer, serverPrivateKey, clientPublicKey) { 
+    let dataObject = await decryptData(answer, serverPrivateKey);
+    console.log(`Date Given: ${dataObject}`);
+    dataObject = JSON.parse(dataObject);
+    let isVerified = await verifySignature(dataObject.data, dataObject.signature,   clientPublicKey);
+
+    if (!isVerified) return false;
+
+    // Convert the date string to a Date object
+    const date = new Date(dataObject.data);
+
+    // Get the current time in milliseconds
+    const now = Date.now();
+
+    const diff = now - date.getTime();
+
+    // Check if the difference is less than or equal to 15 seconds
+    // if (diff <= 15000) {
+    //     console.log('The date is within the last 15 seconds');
+    //     return true;
+    // } else {
+    //     console.log('The date is not within the last 15 seconds');
+    //     return false;
+    // }
+    isVerified = (diff <= 15000) ? true : false;
+    return isVerified;
+
+}
+
+decryptData = async function(data, key) {
     data = forge.util.decode64(data);
     const decrypted = await forge.pki.privateKeyFromPem(key).decrypt(data);
     return decrypted;
 }
 
-module.exports.verifySignature = async function(data, signature, key) {
+verifySignature = async function(data, signature, key) {
     const signatureBuffer = Buffer.from(signature, 'hex');
     isValid = curve.keyFromPublic(key, 'hex').verify(data, signatureBuffer);
     return isValid;
