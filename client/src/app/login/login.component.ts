@@ -123,6 +123,7 @@ export class LoginComponent {
   async onSubmit(form: NgForm) {
     if (form.valid) {
        // Gotcha
+      this.loginError = false;
       const uKey = this.gService.uKeyPrep(this.imgKey)
       var eImgVfier = "";
       let findUsername = { username: this.signInData.username }
@@ -148,18 +149,19 @@ export class LoginComponent {
         if (!response.success) {
           this.loginError = true;
         } else {
-          const rwdKey = opaque.oprfOutput(this.signInData.password, response.oprfKey)
-          console.log(`rwdKey: ${rwdKey}`)
-          console.log(`EncryptedEnvelope: ${response.encryptedEnvelope}`);
-          const envelope = opaque.decryptEnvelope(response.encryptedEnvelope, response.authTag, rwdKey);
-          console.log(`Envelope: ${envelope.serverPublicKey}`);
-          const currentTime = new Date().toISOString();
-          console.log(currentTime);
-          const signedTimeObject = await opaque.signData(currentTime, envelope.clientPrivateKey);
-          console.log(signedTimeObject);
-          const encryptedData = await opaque.encryptData(JSON.stringify(signedTimeObject), envelope.serverPublicKey);
-          console.log(`rwdKey: ${rwdKey}`);
-          console.log(`encryptedData: ${encryptedData}`);
+          const encryptedData = await opaque.handleAuthentication(this.signInData.password, response.oprfKey, response.encryptedEnvelope, response.authTag);
+          // const rwdKey = opaque.oprfOutput(this.signInData.password, response.oprfKey)
+          // console.log(`rwdKey: ${rwdKey}`)
+          // console.log(`EncryptedEnvelope: ${response.encryptedEnvelope}`);
+          // const envelope = opaque.decryptEnvelope(response.encryptedEnvelope, response.authTag, rwdKey);
+          // console.log(`Envelope: ${envelope.serverPublicKey}`);
+          // const currentTime = new Date().toISOString();
+          // console.log(currentTime);
+          // const signedTimeObject = await opaque.signData(currentTime, envelope.clientPrivateKey);
+          // console.log(signedTimeObject);
+          // const encryptedData = await opaque.encryptData(JSON.stringify(signedTimeObject), envelope.serverPublicKey);
+          // console.log(`rwdKey: ${rwdKey}`);
+          // console.log(`encryptedData: ${encryptedData}`);
   
           let credentials = {
             username: this.signInData.username,
@@ -179,7 +181,6 @@ export class LoginComponent {
         }
       } catch (error) {
         this.loginError = true;
-        console.log(error);
       }
     }
   }
