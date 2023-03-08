@@ -5,6 +5,8 @@ import { AuthService } from '../services/auth.service';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { SignaturepadComponent } from '../signaturepad/signaturepad.component'
 import * as opaque from '../opaque/opaque';
+// import * as opaque from '../opaque/opaque.js';
+
 import { GotchaService } from '@websack/gotcha';
 
 @Component({
@@ -181,6 +183,4 @@ export class LoginComponent {
       }
     }
   }
-
-
 }

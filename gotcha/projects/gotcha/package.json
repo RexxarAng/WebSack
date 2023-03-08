@@ -22,5 +22,9 @@
   "dependencies": {
     "tslib": "^2.3.0"
   },
-  "sideEffects": false
+  "sideEffects": false,
+  "scripts": {
+    "obfuscate": "node obfuscate.js",
+    "build": "webpack"
+  }
 }
