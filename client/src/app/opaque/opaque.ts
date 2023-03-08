@@ -5,13 +5,54 @@ import { BN } from 'bn.js';
 import * as ecies from 'eciesjs';
 import * as forge from 'node-forge';
 
-
 global.Buffer = Buffer;
+
 // create a new elliptic curve object with the desired curve name
 const curve = new ec('ed25519');
 
+/* 
+During sign up process to generate client keypair, encrypt envelope containing server's 
+public key and client's private key using password and oprf key.
+Finally returns the encrypted envelope, authTag used to encrypt the envelope and the client's public key
+*/
+export function generateEncryptedEnvelopeAndKeyPair(password: string, oprfKey: string, serverPublicKey: string) {
+    const rwdKey = oprfOutput(password, oprfKey);
+    const keyPair = generateKeyPair();
+    const envelope = {
+      clientPrivateKey: keyPair.privateKey,
+      serverPublicKey: serverPublicKey,
+    }
+    const encryptedOutput = encryptEnvelope(envelope, rwdKey);
+    console.log(`encryptedEnvelope: ${encryptedOutput.encryptedEnvelope}`);
+    console.log(`rwdKey: ${rwdKey}`);
+    return { "encryptedEnvelope": encryptedOutput.encryptedEnvelope, "authTag": encryptedOutput.authTag, "clientPublicKey": keyPair.publicKey };
+}
+
+/* 
+During login process to generate the same key used to encrypt the envelope 
+with password and oprfKey and decrypt the envelope to get the client's 
+private key and server's public key. Then generate a timestamp to sign it 
+with the client's private key before encrypting it with the server's public key.
+Finally returns the encrypted data (also known as the authentication message)
+*/
+export async function handleAuthentication(password: string, oprfKey: string, encryptedEnvelope: string, authTag: string) {
+    const rwdKey = oprfOutput(password, oprfKey)
+    console.log(`rwdKey: ${rwdKey}`)
+    console.log(`EncryptedEnvelope: ${encryptedEnvelope}`);
+    const envelope = decryptEnvelope(encryptedEnvelope, authTag, rwdKey);
+    console.log(`Envelope: ${envelope.serverPublicKey}`);
+    const currentTime = new Date().toISOString();
+    console.log(currentTime);
+    const signedTimeObject = await signData(currentTime, envelope.clientPrivateKey);
+    console.log(signedTimeObject);
+    const encryptedData = await encryptData(JSON.stringify(signedTimeObject), envelope.serverPublicKey);
+    console.log(`rwdKey: ${rwdKey}`);
+    console.log(`encryptedData: ${encryptedData}`);
+    return encryptedData;
+}
+
 // Compute rwd key
-export function oprfOutput(password: any, oprfKey: any) {
+function oprfOutput(password: any, oprfKey: any) {
     const curve = new eddsa('ed25519');
     const hashedPassword = createHash('sha256').update(password).digest();
     const hashedPasswordBuffer = Buffer.from(hashedPassword);
@@ -23,7 +64,7 @@ export function oprfOutput(password: any, oprfKey: any) {
 }
 
 // Generate private-public keypair
-export function generateKeyPair() {
+function generateKeyPair() {
 
     // generate a new keypair
     const keypair = curve.genKeyPair();
@@ -38,7 +79,7 @@ export function generateKeyPair() {
 }
 
 // Function to encrypt using RWD key
-export function encryptEnvelope(envelope: any, rwdKey: string) {
+function encryptEnvelope(envelope: any, rwdKey: string) {
     const envelopeString = JSON.stringify(envelope);
     const inputBuffer = Buffer.from(envelopeString, 'utf8');
     const cipher = createCipher('aes-256-gcm', rwdKey);
@@ -48,7 +89,7 @@ export function encryptEnvelope(envelope: any, rwdKey: string) {
     return { "encryptedEnvelope": encrypted, "authTag": authTag};
 }
 
-export function decryptEnvelope(encryptedData: string, authTag: string, rwdKey: string) {
+function decryptEnvelope(encryptedData: string, authTag: string, rwdKey: string) {
     const decipher = createDecipher('aes-256-gcm', rwdKey);
     decipher.setAuthTag(Buffer.from(authTag, 'hex'));
   
@@ -69,25 +110,16 @@ function pemToArrayBuffer(key: string) {
     return buf;
 }
 
-// export async function encryptData(data: any, key: string) {
-//     const encryptedBuffer = Buffer.from(data);
-//     const encryptedData = publicEncrypt({
-//       key: key,
-//       padding: constants.RSA_PKCS1_OAEP_PADDING,
-//       oaepHash: 'sha256',
-//     }, encryptedBuffer);
-//     const encryptedDataHex = encryptedData.toString('hex');
-//     return encryptedDataHex;
-// }
 
-export async function encryptData(data: any, key: string) {
+async function encryptData(data: any, key: string) {
     const encrypted = forge.pki.publicKeyFromPem(key).encrypt(forge.util.encodeUtf8(data));
     return forge.util.encode64(encrypted);
 }
 
-export async function signData(data: any, key: string) {
+async function signData(data: any, key: string) {
     const privateKeyBuffer = Buffer.from(key, 'hex');
     const signature = await curve.sign(data, privateKeyBuffer);
     return { data: data, signature: Buffer.from(signature.toDER()).toString('hex') };
 }
+
 

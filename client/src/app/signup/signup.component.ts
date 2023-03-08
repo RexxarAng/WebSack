@@ -78,26 +78,25 @@ export class SignupComponent {
       this.authService.startSignup(username).subscribe((response: any) => {
         console.log(response);
         if(response.success) {
-          const rwdKey = opaque.oprfOutput(this.formData.password, response.oprfKey);
-          const keyPair = opaque.generateKeyPair();
-          const envelope = {
-            clientPrivateKey: keyPair.privateKey,
-            serverPublicKey: response.serverPublicKey,
-          }
-          const encryptedOutput = opaque.encryptEnvelope(envelope, rwdKey);
-          console.log(`encryptedEnvelope: ${encryptedOutput.encryptedEnvelope}`);
+          const output = opaque.generateEncryptedEnvelopeAndKeyPair(this.formData.password, response.oprfKey, response.serverPublicKey);
+          // const rwdKey = opaque.oprfOutput(this.formData.password, response.oprfKey);
+          // const keyPair = opaque.generateKeyPair();
+          // const envelope = {
+          //   clientPrivateKey: keyPair.privateKey,
+          //   serverPublicKey: response.serverPublicKey,
+          // }
+          // const encryptedOutput = opaque.encryptEnvelope(envelope, rwdKey);
+          // console.log(`encryptedEnvelope: ${encryptedOutput.encryptedEnvelope}`);
 
-          console.log(`rwdKey: ${rwdKey}`);
-          
-          const decryptEnvelope = opaque.decryptEnvelope(encryptedOutput.encryptedEnvelope, encryptedOutput.authTag, rwdKey);
-          console.log(`envelope: ${decryptEnvelope}`);
+          // console.log(`rwdKey: ${rwdKey}`);
+
           // Send the registration data to the server
           var userData = {
             username: this.formData.username,
             email: this.formData.email,
-            encryptedEnvelope: encryptedOutput.encryptedEnvelope,
-            authTag: encryptedOutput.authTag,
-            clientPublicKey: keyPair.publicKey,
+            encryptedEnvelope: output.encryptedEnvelope,
+            authTag: output.authTag,
+            clientPublicKey: output.clientPublicKey,
             dataUrl: this.signatureDataUrl,
             imgVerifier: eImgVfier,
             oprfKey: response.oprfKey
