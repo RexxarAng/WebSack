@@ -9,6 +9,9 @@ const mongoose = require('mongoose');
 const mongoSanitize = require('express-mongo-sanitize');
 const crypto = require('crypto');
 const apiRoute = require('./routes/apiRoute');
+const config = require("./config/database");
+const session = require('express-session');
+const passport = require('passport');
 
 const app = express();
 
@@ -19,6 +22,18 @@ app.use(cors());
 // Parse application/json
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({extended: true}));
+
+app.use(session({
+  secret: config.secret,
+  resave: false,
+  saveUninitialized: false
+}))
+
+// Passport Middleware
+app.use(passport.initialize());
+app.use(passport.session());
+
+require('./config/passport')(passport);
 
 // Prevent nosql injection
 app.use(mongoSanitize({replaceWith: '_'}));
