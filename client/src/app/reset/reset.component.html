@@ -3,27 +3,27 @@
         <div class="col-md-8">
             <div class="card">
                 <div class="card-header">
-                    Please sign in
+                    Reset Your Password
                 </div>
                 <div class="card-body">
-                    <form class="form-signin" (ngSubmit)="onSubmit(signInForm)" #signInForm="ngForm">
+                    <form class="form-signin" (ngSubmit)="onSubmit(resetForm)" #resetForm="ngForm">
                         <div class="form-group mb-3">
                             <label for="username">Username</label>
                             <input type="username" id="username" class="form-control" placeholder="Username" required
-                                [(ngModel)]="signInData.username" name="username" #username="ngModel"
-                                [class.is-invalid]="signInForm.submitted && username.invalid">
-                            <div *ngIf="signInForm.submitted && username.invalid" class="invalid-feedback">
+                                [(ngModel)]="resetData.username" name="username" #username="ngModel"
+                                [class.is-invalid]="resetForm.submitted && username.invalid">
+                            <div *ngIf="resetForm.submitted && username.invalid" class="invalid-feedback">
                                 <div *ngIf="username.errors?.['required']" class="text-danger">
                                     Username is required
                                 </div>
                             </div>
                         </div>
                         <div class="form-group mb-3">
-                            <label for="inputPassword">Password</label>
+                            <label for="inputPassword">New Password</label>
                             <input type="password" id="inputPassword" class="form-control" placeholder="Password"
-                                required [(ngModel)]="signInData.password" name="password" #password="ngModel"
-                                [class.is-invalid]="signInForm.submitted && password.invalid">
-                            <div *ngIf="signInForm.submitted && password.invalid" class="invalid-feedback">
+                                required [(ngModel)]="resetData.password" name="password" #password="ngModel"
+                                [class.is-invalid]="resetForm.submitted && password.invalid">
+                            <div *ngIf="resetForm.submitted && password.invalid" class="invalid-feedback">
                                 <div *ngIf="password.errors?.['required']" class="text-danger">
                                     Password is required
                                 </div>
@@ -43,8 +43,7 @@
                                 </div>
                             </div>
                         </div>
-                        <button class="btn btn-lg btn-primary btn-block" type="submit">Sign in</button>
-                        <a class="nav-link" [routerLink]="['/reset']">Forget Your Password?</a>
+                        <button class="btn btn-lg btn-primary btn-block" type="submit">Reset</button>
                         <ngb-toast class="mt-3" *ngIf="loginError" header="Login Error" [autohide]="true"
                             (hide)="loginError=false">
                             Incorrect username or password. Please try again.
