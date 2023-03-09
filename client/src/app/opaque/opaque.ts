@@ -51,26 +51,93 @@ export async function handleAuthentication(password: string, oprfKey: string, en
     return encryptedData;
 }
 
-// Compute rwd key
+/** 
+ * Compute rwd key from user password, unique OPRFkey, salt from image hash. Achieved
+ * by using EDDSA-ED25519, and SHA256 hashing on the password to compute the key. 
+ * Resultant rwd key then hashed using KDF - PBKDF2, for n iterations to strengthen
+ * resistance to dictionary attacks. Force H^n(F(pwd,oprfkey,salt)) number of
+ * computations for each user if brute-forced.
+*/
 function oprfOutput(password: any, oprfKey: any, salt: any) {
+    // Create new digital signature curve object with ED25519 algo as choice
     const curve = new eddsa('ed25519');
-    const hashedPassword = createHash('sha256').update(password).digest();
-    const hashedPasswordBuffer = Buffer.from(hashedPassword);
-    const oprfKeyBuffer = Buffer.from(oprfKey, 'hex');
-    const passwordPoint = curve.curve.pointFromX(hashedPasswordBuffer, true);
+    const hashedPassword = createHash('sha256').update(password).digest();      // Password is hashed
+    const hashedPasswordBuffer = Buffer.from(hashedPassword);                  
+    const oprfKeyBuffer = Buffer.from(oprfKey, 'hex');          
+    // Establish point of reference for verification on curve for given password hash                
+    const passwordPoint = curve.curve.pointFromX(hashedPasswordBuffer, true); 
     const scalar = new BN(oprfKeyBuffer);
+    // Digital signature key derived and encoded into hex
     const rwdKey = passwordPoint.mul(scalar).encode('hex', false);
     const derivedKey = hIterFunction(rwdKey, salt);
     return derivedKey; 
 }
 
+/**
+ * Proposed in "OPAQUE: An Asymmetric PAKE Protocol Secure Against Pre-Computation Attacks",
+ * to perform H^n() iterated hashing of resultant rwd key for improving resistance. Where
+ * hash algorithm is replaced with KDF - PBKDF2, for (n) >= 100 number of iterations. Algorithm
+ * consists of computing a pseudo random number of iterations based on a given halting condition.
+ * 
+ * @param rwdKey 
+ * @param salt 
+ * @returns 
+ */
 function hIterFunction(rwdKey: any, salt: any) {
-    const iterations = 10000; // choose the number of iterations
+    let iterations = 100;
     const keyLen = 32; // choose the desired key length
+    let derivedKey = Buffer.alloc(keyLen);
+    let prevDerivedKey = Buffer.alloc(keyLen);
+
     const passwordBuffer = Buffer.from(rwdKey);
-    const derivedKey = pbkdf2Sync(passwordBuffer, salt, iterations, keyLen, 'sha256');
-    return derivedKey;
+    
+    // Hash the initial key using salt as the IV
+    derivedKey = pbkdf2Sync(passwordBuffer, salt, iterations, keyLen, 'sha256');
+  
+    // Iterate the hash function until a stopping condition is met
+    while (true) {
+      // Compute the hash of the previous derived key concatenated with the salt
+      prevDerivedKey = derivedKey;
+      derivedKey = pbkdf2Sync(prevDerivedKey, salt, iterations, keyLen, 'sha256');
+  
+      // Check if the derived key has reached a stopping condition
+      if (isStoppingConditionMet(derivedKey)) {
+        break;
+      }
+      
+      // Increment the iteration count
+      iterations++;
+    }
+    console.log("Iterations:" + iterations);
+    console.log("Derived Key:" + derivedKey.toString());
+  
+    // Return the final derived key and iteration count as a tuple
+    return derivedKey.toString();
+  }
+  
+/**
+ * Halting condition for iterating HKDF function of rwd key.
+ * @param key 
+ * @returns 
+ */
+function isStoppingConditionMet(key: Buffer) {
+    // Check if the most significant bit of the first byte is set
+    console.log(key);
+    // return (key[0] & 0x80) === 0x80;
+
+    // Count the number of leading zero bits in the first byte
+    let byte = key[0];
+    let numLeadingZeros = 0;
+    while ((byte & 0x80) === 0) {
+        byte <<= 1;
+        numLeadingZeros++;
+    }
+
+    // Require a minimum number of leading zero bits
+    const minLeadingZeros = 5;
+    return numLeadingZeros >= minLeadingZeros;
 }
+  
 
 
 // Generate private-public keypair
@@ -88,7 +155,10 @@ function generateKeyPair() {
     return { "privateKey": privateKeyString, "publicKey": publicKeyString }
 }
 
-// Function to encrypt using RWD key
+/**
+ * Function to encrypt using RWD key. Uses AES-GCM256 bit. Key based on HKDF.
+ * Key is diff for each user, can't be exploited and reused for other envelopes. 
+ * */ 
 function encryptEnvelope(envelope: any, rwdKey: string) {
     const envelopeString = JSON.stringify(envelope);
     const inputBuffer = Buffer.from(envelopeString, 'utf8');
