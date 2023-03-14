@@ -1,6 +1,7 @@
 const mongoose = require('mongoose')
 const User = require('../models/User')
 const Key = require('../models/Key')
+const Token = require('../models/Token')
 const userValidator = require('../validators/userValidator')
 const bcrypt = require('bcrypt')
 const fs = require('fs')
@@ -303,6 +304,30 @@ exports.authenticate = async (req, res, next) => {
     });
 };
 
+
+exports.blackListToken = async (req, res, next) => {
+    let token = new Token({
+        value: req.headers.authorization
+    });
+    Token.create(token, (err2, token) => {
+        if(err2)
+            return res.json({success: false, msg: "Token already blacklisted"});
+        if(token)
+            return res.json({success: true, msg:"Token blacklisted"});
+    });
+};
+
+exports.isNotBlackListedToken = async(req, res, next) => {
+    console.log(req.headers.authorization);
+    Token.findOne({'value': req.headers.authorization}, (err, token) => {
+        if(token){
+            console.log(token);
+            res.status(401).json({success: false, unauthenticated: true, msg: "Blacklisted token!"})
+        } else {
+            next();
+        }
+    });
+};
 
 exports.getProfile = async (req, res, next) => {
     res.json({user: req.user});

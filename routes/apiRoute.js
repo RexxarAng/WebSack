@@ -16,8 +16,8 @@ router.post("/authenticate", apiController.authenticate);
 
 router.post("/imgVerify", apiController.vImgIdentify); // Gotcha
 
-router.get("/profile", passport.authenticate('jwt', {session:false}), apiController.getProfile);
+router.get("/profile", [passport.authenticate('jwt', {session:false}), apiController.isNotBlackListedToken], apiController.getProfile);
 
-
+router.post("/logout", passport.authenticate('jwt', {session:false}), apiController.blackListToken);
 
 module.exports = router;

@@ -1,5 +1,6 @@
 import { Injectable, Inject } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { Router } from '@angular/router';
 import { JwtHelperService } from '@auth0/angular-jwt';
 import * as moment from "moment";
 
@@ -11,6 +12,7 @@ export class AuthService {
 
     constructor(
         private http: HttpClient,
+        private router: Router,
         @Inject('API_URL') private apiUrl: string
         ) { }
 
@@ -78,10 +80,30 @@ export class AuthService {
         return !this.jwtHelperService.isTokenExpired(this.authToken);
     }
 
-    logout() {
+    deleteToken() {
         this.authToken = null;
         this.user = null;
         sessionStorage.clear();
+    }
+ 
+    logout() {
+        const token = this.tokenGetter();
+        if (token) {
+            if (!this.jwtHelperService.isTokenExpired(token)) {
+                const url = `${this.apiUrl}/logout`
+                this.http.post(url, "").subscribe(res=>{
+                    this.deleteToken();
+                    this.router.navigate(['/login']);
+                });
+            } else {
+                this.deleteToken();
+                this.router.navigate(['/login']);
+            }
+        } else {
+            this.deleteToken();
+            this.router.navigate(['/login']);
+        }
+ 
     }
 
 }
