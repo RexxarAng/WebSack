@@ -106,6 +106,9 @@ export class SignupComponent {
               this.modalService.open(this.signupFailureModal);
             }
           });
+        } else {
+          this.message = response.msg;
+          this.modalService.open(this.signupFailureModal);
         }
       });
      
