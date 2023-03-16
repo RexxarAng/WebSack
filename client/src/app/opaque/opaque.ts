@@ -75,7 +75,7 @@ function oprfOutput(password: any, oprfKey: any, salt: any) {
 
 /**
  * Proposed in "OPAQUE: An Asymmetric PAKE Protocol Secure Against Pre-Computation Attacks",
- * to perform H^n() iterated hashing of resultant rwd key for improving resistance. Where
+ * to perform H^n() iterated hashing of resultant rwd key for improving resistance (HKDF). Where
  * hash algorithm is replaced with KDF - PBKDF2, for (n) >= 100 number of iterations. Algorithm
  * consists of computing a pseudo random number of iterations based on a given halting condition.
  * 
@@ -84,7 +84,7 @@ function oprfOutput(password: any, oprfKey: any, salt: any) {
  * @returns 
  */
 function hIterFunction(rwdKey: any, salt: any) {
-    let iterations = 100;
+    let iterations = 1000;
     const keyLen = 32; // choose the desired key length
     let derivedKey = Buffer.alloc(keyLen);
     let prevDerivedKey = Buffer.alloc(keyLen);
@@ -94,14 +94,14 @@ function hIterFunction(rwdKey: any, salt: any) {
     // Hash the initial key using salt as the IV
     derivedKey = pbkdf2Sync(passwordBuffer, salt, iterations, keyLen, 'sha256');
   
-    // Iterate the hash function until a stopping condition is met
+    // Iterate the hash function until a halting condition is met
     while (true) {
       // Compute the hash of the previous derived key concatenated with the salt
       prevDerivedKey = derivedKey;
       derivedKey = pbkdf2Sync(prevDerivedKey, salt, iterations, keyLen, 'sha256');
   
-      // Check if the derived key has reached a stopping condition
-      if (isStoppingConditionMet(derivedKey)) {
+      // Check if the derived key has reached a halting condition
+      if (isHaltingConditionMet(derivedKey)) {
         break;
       }
       
@@ -120,9 +120,9 @@ function hIterFunction(rwdKey: any, salt: any) {
  * @param key 
  * @returns 
  */
-function isStoppingConditionMet(key: Buffer) {
+function isHaltingConditionMet(key: Buffer) {
     // Check if the most significant bit of the first byte is set
-    console.log(key);
+    // console.log(key);
     // return (key[0] & 0x80) === 0x80;
 
     // Count the number of leading zero bits in the first byte
