@@ -41,14 +41,22 @@ function saveSignature(dataUrl, username) {
   }
 
 exports.startSignup = async (req, res, next) => {
-    const user = await User.findOne(req.body);
-    if (userValidator.validateExistingUser(user)) {
-        console.log("already exists");
+    const existingEmail = await User.findOne({ email: req.body.email });
+    if (userValidator.validateExistingUser(existingEmail)) {
         return res.json({
             success: false,
-            msg: 'User already exists'
+            msg: 'Email already in use'
         })
     }
+
+    const existingUsername = await User.findOne({ username: req.body.username })
+    if (userValidator.validateExistingUser(existingUsername)) {
+        return res.json({
+            success: false,
+            msg: 'Username already in use'
+        })
+    }
+
     var keyPair = await Opaque.generateServerKey();
 
     // In event of registration error, this allow us to update the user's oprfKey and serverPublicKey
