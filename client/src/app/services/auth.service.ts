@@ -21,11 +21,6 @@ export class AuthService {
         return this.http.post(url, username);
     }
 
-    signup(user: any) {
-        const url = `${this.apiUrl}/signup`
-        return this.http.post(url, user);
-    }
-
     completeSignup(user: any) {
         const url = `${this.apiUrl}/completeSignup`
         return this.http.post(url, user);

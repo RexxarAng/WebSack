@@ -18,25 +18,25 @@ const UserSchema = new mongoose.Schema({
     // },
     encryptedEnvelope: {
         type: String,
-        required: true
     },
     authTag: {
         type: String,
         required: true
     },
     clientPublicKey:{
-        type: String,
-        required: true
+        type: String
     },
     imgName: {
         type: String,
-        required: true
     },
     imgVerifier: {
         type: String,
-        required: true
     },
     oprfKey: {
+        type: String,
+        required: true
+    },
+    salt: {
         type: String,
         required: true
     }

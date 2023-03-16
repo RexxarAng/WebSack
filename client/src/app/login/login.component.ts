@@ -42,106 +42,35 @@ export class LoginComponent {
     this.modalService.dismissAll();
   }
 
-  handleGotchaData(gotchaData: any) {
-    this.signatureDataUrl = gotchaData.dataUrl;
-    this.imgVfierHash = gotchaData.imgVfier;
-    this.imgKey = gotchaData.imgKey;
-    // do something with the dataURL, such as sending it to the backend
-  }
-
-  
-
-  // onSubmit(form: NgForm) {
-  //   if (form.valid) {
-  //     this.loginError = false
-  //     console.log(this.signInData);
-  //     let signInCredentials = {
-  //       username: this.signInData.username,
-  //       password: this.signInData.password,
-  //       dataUrl: this.signatureDataUrl,
-  //       imgVerifier: this.imgVfierHash
-  //     }
-
-  //     this.authService.authenticate(signInCredentials).subscribe((data: any) => {
-  //         if (!data.success) {
-  //           this.loginError = true;
-  //         } else {
-  //           this.loginError = false;
-  //           this.authService.storeUserToken(data.token, data.user);
-  //           console.log(this.authService.tokenGetter());
-  //           this.router.navigate(['/profile']);
-  //         }
-  //     });
-  //   }
-  // }
-
-  // onSubmit(form: NgForm) {
-  //   if (form.valid) {
-  //     this.loginError = false
-  //     console.log(this.signInData);
-  //     let signInCredentials = {
-  //       username: this.signInData.username,
-  //       dataUrl: this.signatureDataUrl,
-  //       imgVerifier: this.imgVfierHash
-  //     }
-
-  //     this.authService.startAuthenticate(signInCredentials).subscribe((response: any) => {
-  //       console.log(response);
-  //       if (!response.success) {
-  //         this.loginError = true;
-  //       } else {
-  //         const curve = new eddsa('ed25519');
-  //         const hashedPassword = createHash('sha256').update(this.signInData.password).digest();
-  //         const hashedPasswordBuffer = Buffer.from(hashedPassword);
-  //         const oprfKeyBuffer = Buffer.from(response.oprfKey, 'hex');
-  //         const passwordPoint = curve.curve.pointFromX(hashedPasswordBuffer, true);
-  //         const scalar = new BN(oprfKeyBuffer);
-  //         const oprfOutput = passwordPoint.mul(scalar).encode('hex', false);
-  //         console.log(`oprfOutput: ${oprfOutput}`);
-  //         let credentials = {
-  //           username: this.signInData.username,
-  //           passwordVerifier: oprfOutput,
-  //           dataUrl: this.signatureDataUrl,
-  //           imgVerifier: this.imgVfierHash
-  //         }
-  //         this.authService.authenticateUser(credentials).subscribe((data: any) => {
-  //           if (data.success) {
-  //             this.loginError = false;
-  //             this.authService.storeUserToken(data.token, data.user);
-  //             console.log(this.authService.tokenGetter());
-  //             this.router.navigate(['/profile']);
-  //           } else {
-  //             this.loginError = true;
-  //           }
-  //         });
-          
-  //       }
-  //     });
-  //   }
+  // handleGotchaData(gotchaData: any) {
+  //   this.signatureDataUrl = gotchaData.dataUrl;
+  //   this.imgVfierHash = gotchaData.imgVfier;
+  //   this.imgKey = gotchaData.imgKey;
+  //   // do something with the dataURL, such as sending it to the backend
   // }
 
   async onSubmit(form: NgForm) {
     if (form.valid) {
        // Gotcha
       this.loginError = false;
-      const uKey = this.gService.uKeyPrep(this.imgKey)
-      var eImgVfier = "";
-      let findUsername = { username: this.signInData.username }
-      try {
-        const response: any = await this.authService.verifyUserImg(findUsername).toPromise();
-        if (!response.success || !(this.gService.vHashVerify(response.vImgVerifier,this.imgVfierHash, uKey))) {
-          this.loginError = true;
-        } else {
-          eImgVfier = response.vImgVerifier;
-        }
-      } catch (error) {
-        this.loginError = true;
-        console.log(error);
-      }
+      // const uKey = this.gService.uKeyPrep(this.imgKey)
+      // var eImgVfier = "";
+      // let findUsername = { username: this.signInData.username }
+      // try {
+      //   const response: any = await this.authService.verifyUserImg(findUsername).toPromise();
+      //   if (!response.success || !(this.gService.vHashVerify(response.vImgVerifier,this.imgVfierHash, uKey))) {
+      //     this.loginError = true;
+      //   } else {
+      //     eImgVfier = response.vImgVerifier;
+      //   }
+      // } catch (error) {
+      //   this.loginError = true;
+      //   console.log(error);
+      // }
       let signInCredentials = {
         username: this.signInData.username,
-        dataUrl: this.signatureDataUrl,
-        imgVerifier: eImgVfier
+        // dataUrl: this.signatureDataUrl,
+        // imgVerifier: eImgVfier
       }
       try {
         const response: any = await this.authService.startAuthenticate(signInCredentials).toPromise();
@@ -149,27 +78,15 @@ export class LoginComponent {
         if (!response.success) {
           this.loginError = true;
         } else {
-          const encryptedData = await opaque.handleAuthentication(this.signInData.password, response.oprfKey, response.encryptedEnvelope, response.authTag, this.imgVfierHash);
-          // const rwdKey = opaque.oprfOutput(this.signInData.password, response.oprfKey)
-          // console.log(`rwdKey: ${rwdKey}`)
-          // console.log(`EncryptedEnvelope: ${response.encryptedEnvelope}`);
-          // const envelope = opaque.decryptEnvelope(response.encryptedEnvelope, response.authTag, rwdKey);
-          // console.log(`Envelope: ${envelope.serverPublicKey}`);
-          // const currentTime = new Date().toISOString();
-          // console.log(currentTime);
-          // const signedTimeObject = await opaque.signData(currentTime, envelope.clientPrivateKey);
-          // console.log(signedTimeObject);
-          // const encryptedData = await opaque.encryptData(JSON.stringify(signedTimeObject), envelope.serverPublicKey);
-          // console.log(`rwdKey: ${rwdKey}`);
-          // console.log(`encryptedData: ${encryptedData}`);
-  
+          const encryptedData = await opaque.handleAuthentication(this.signInData.password, response.oprfKey, response.encryptedEnvelope, response.authTag, response.salt);
           let credentials = {
             username: this.signInData.username,
-            answer: encryptedData,
-            dataUrl: this.signatureDataUrl,
-            imgVerifier: eImgVfier
+            answer: encryptedData
+            // dataUrl: this.signatureDataUrl,
+            // imgVerifier: eImgVfier
           }
           const data: any = await this.authService.authenticateUser(credentials).toPromise();
+          console.log(data);
           if (data.success) {
             this.loginError = false;
             this.authService.storeUserToken(data.token, data.user);
@@ -180,6 +97,7 @@ export class LoginComponent {
           }
         }
       } catch (error) {
+        console.log(error);
         this.loginError = true;
       }
     }

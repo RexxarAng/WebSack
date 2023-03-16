@@ -15,4 +15,14 @@ function validateDataUrl(dataUrl) {
     return re.test(dataUrl);
 }
 
-module.exports = { validateEmail, validatePassword, validateDataUrl };
+function validateExistingUser(object) {
+    if (!object) {
+        return false;
+    }
+    if (object && (object.encryptedEnvelope == null || object.encryptedEnvelope == undefined) && (object.authTag == null || object.authTag == undefined)) {
+        return false;
+    }
+    return true;
+}
+
+module.exports = { validateEmail, validatePassword, validateDataUrl, validateExistingUser };

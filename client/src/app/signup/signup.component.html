@@ -51,7 +51,7 @@
                                 </div>
                             </div>
                         </div>
-                        <div class="form-group mb-3">
+                        <!-- <div class="form-group mb-3">
                             <div class="d-flex align-items-center">
                                 <div class="d-flex align-items-center">
                                     <button class="btn btn-secondary mr-4" [ngClass]="{'btn-danger': !signatureDataUrl}"
@@ -64,7 +64,7 @@
                                     </div>
                                 </div>
                             </div>
-                        </div>
+                        </div> -->
                         <!-- <div class="form-group mb-3">
                             <div class="d-flex align-items-center">
                                 <div class="d-flex align-items-center">
@@ -82,7 +82,7 @@
                         <button type="submit" class="btn btn-primary">Submit</button>
                     </form>
                     <!-- Modal template -->
-                    <ng-template #signatureModal let-modal>
+                    <!-- <ng-template #signatureModal let-modal>
                         <div class="modal-modal">
                             <div class="modal-header">
                                 <h4 class="modal-title">Please sign your signature</h4>
@@ -93,11 +93,11 @@
                             <div class="modal-body">
                                 <app-gotchapad (closeModalEvent)="closeModal()"
                                     (gotchaDataEmitter)="handleGatchaData($event)"></app-gotchapad>
-                                <!-- <app-signaturepad (closeModalEvent)="closeModal()"
-                                    (signatureDataUrlEmitter)="handleSignatureDataUrl($event)"></app-signaturepad> -->
+                                <app-signaturepad (closeModalEvent)="closeModal()"
+                                    (signatureDataUrlEmitter)="handleSignatureDataUrl($event)"></app-signaturepad>
                             </div>
                         </div>
-                    </ng-template>
+                    </ng-template>  -->
                     <!-- Modal template -->
                     <ng-template #signupSuccessModal let-modal>
                         <div class="modal-header">

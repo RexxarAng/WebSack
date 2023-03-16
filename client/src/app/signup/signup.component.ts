@@ -67,27 +67,18 @@ export class SignupComponent {
 
   onSubmit(form: NgForm) {
     if (form.valid) {
-      const uKey = this.gService.uKeyPrep(this.imgKey);
-      const eImgVfier = this.gService.veHashEncrypt(this.imgVfierHash ,uKey);
+      // const uKey = this.gService.uKeyPrep(this.imgKey);
+      // const eImgVfier = this.gService.veHashEncrypt(this.imgVfierHash ,uKey);
       
-      var username = {
-        username: this.formData.username
+      var identifier = {
+        username: this.formData.username,
+        email: this.formData.email
       }
       // Get OPRF Key
-      this.authService.startSignup(username).subscribe((response: any) => {
+      this.authService.startSignup(identifier).subscribe((response: any) => {
         console.log(response);
         if(response.success) {
-          const output = opaque.generateEncryptedEnvelopeAndKeyPair(this.formData.password, response.oprfKey, response.serverPublicKey, this.imgVfierHash);
-          // const rwdKey = opaque.oprfOutput(this.formData.password, response.oprfKey);
-          // const keyPair = opaque.generateKeyPair();
-          // const envelope = {
-          //   clientPrivateKey: keyPair.privateKey,
-          //   serverPublicKey: response.serverPublicKey,
-          // }
-          // const encryptedOutput = opaque.encryptEnvelope(envelope, rwdKey);
-          // console.log(`encryptedEnvelope: ${encryptedOutput.encryptedEnvelope}`);
-
-          // console.log(`rwdKey: ${rwdKey}`);
+          const output = opaque.generateEncryptedEnvelopeAndKeyPair(this.formData.password, response.oprfKey, response.serverPublicKey, response.salt);
 
           // Send the registration data to the server
           var userData = {
@@ -96,9 +87,9 @@ export class SignupComponent {
             encryptedEnvelope: output.encryptedEnvelope,
             authTag: output.authTag,
             clientPublicKey: output.clientPublicKey,
-            dataUrl: this.signatureDataUrl,
-            imgVerifier: eImgVfier,
-            oprfKey: response.oprfKey
+            // dataUrl: this.signatureDataUrl,
+            // imgVerifier: eImgVfier,
+            // oprfKey: response.oprfKey
           };
           this.authService.completeSignup(userData)
           .subscribe((response: any) => {

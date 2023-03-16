@@ -65,7 +65,7 @@ module.exports.decryptAndVerify = async function(answer, serverPrivateKey, clien
     let dataObject = await decryptData(answer, serverPrivateKey);
     console.log(`Date Given: ${dataObject}`);
     dataObject = JSON.parse(dataObject);
-    let isVerified = await verifySignature(dataObject.data, dataObject.signature,   clientPublicKey);
+    let isVerified = await verifySignature(dataObject.data, dataObject.signature, clientPublicKey);
 
     if (!isVerified) return false;
 
@@ -88,6 +88,11 @@ module.exports.decryptAndVerify = async function(answer, serverPrivateKey, clien
     isVerified = (diff <= 15000) ? true : false;
     return isVerified;
 
+}
+
+module.exports.genSalt = function() {
+    const saltLength = 16; // Salt Length in bytes
+    return crypto.randomBytes(saltLength).toString('hex');
 }
 
 decryptData = async function(data, key) {

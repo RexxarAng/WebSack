@@ -41,8 +41,8 @@ function saveSignature(dataUrl, username) {
   }
 
 exports.startSignup = async (req, res, next) => {
-    const userExists = await User.findOne(req.body);
-    if (userExists) {
+    const user = await User.findOne(req.body);
+    if (userValidator.validateExistingUser(user)) {
         console.log("already exists");
         return res.json({
             success: false,
@@ -50,86 +50,25 @@ exports.startSignup = async (req, res, next) => {
         })
     }
     var keyPair = await Opaque.generateServerKey();
-    const filter = { username: req.body.username };
-    const update = { privateKey: keyPair.privateKey, publicKey: keyPair.publicKey};
+
+    // In event of registration error, this allow us to update the user's oprfKey and serverPublicKey
+    const userFilter = { username: req.body.username, email: req.body.email };
+    const oprfKey = Opaque.generateOPRFKey(req.body.username)
+    const userUpdate = { oprfKey: oprfKey, serverPublicKey: keyPair.publicKey, salt: Opaque.genSalt() };
+    const newUser = await User.findOneAndUpdate(userFilter, userUpdate, { upsert: true, new: true });
+
+    // In event of registration error, this allow us to update the server keypair unique to the user
+    const keyFilter = { username: req.body.username };
+    const keyUpdate = { privateKey: keyPair.privateKey, publicKey: keyPair.publicKey};
     const options = { upsert: true, new: true };
-    const key = await Key.findOneAndUpdate(filter, update, options);
+    const key = await Key.findOneAndUpdate(keyFilter, keyUpdate, options);
     return res.json({ 
         success: true,
-        oprfKey: Opaque.generateOPRFKey(req.body.username),
-        serverPublicKey: key.publicKey
+        oprfKey: oprfKey,
+        serverPublicKey: key.publicKey,
+        salt: newUser.salt
     });
 }
-
-exports.signup = async (req, res, next) => {
-    var { username, email, password, dataUrl, imgVerifier, uKey } = req.body;
-    if (!userValidator.validateEmail(email)) {
-        return res.json({
-            success: false,
-            msg: "Invalid Email"
-        });
-    }
-
-    if (!userValidator.validatePassword(password)) {
-        return res.json({
-            success: false,
-            msg: "Invalid Password"
-        });
-    }
-
-    if (!userValidator.validateDataUrl(dataUrl)) {
-        return res.json({
-            success: false,
-            msg: "Invalid data url"
-        })
-    }
-    
-    const emailExists = await User.findOne({ email: email });
-    if (emailExists) {
-        return res.json({
-            success: false,
-            msg: 'Email already in use'
-        })
-    }
-
-    const usernameExists = await User.findOne({ username: username })
-
-    if (usernameExists) {
-        return res.json({
-            success: false,
-            msg: 'Username already in use'
-        })
-    }
-
-    const filename = await saveSignature(dataUrl, username);
-    
-    let newUser = new User({
-        username: username,
-        email: email,
-        password: password,
-        imgName: filename,
-        imgVerifier: imgVerifier
-    });
-
-    User.addUser(newUser, (err, user) => {
-        if (err) {
-            rimraf(`./uploads/users/${username}`, (err) => {
-                if (err) console.error('Error occurred during directory deletion:', err);
-                else console.log(`Directory ${dirPath} deleted successfully`);
-            });
-            return res.json({
-                success: false,
-                msg: err
-            });
-        } else {
-            return res.json({
-                success: true,
-                msg: "User created successfully!"
-            })
-        }
-
-    });
-};
 
 exports.completeSignup = async (req, res, next) => {
     var { username, email, encryptedEnvelope, authTag, clientPublicKey, dataUrl, imgVerifier, oprfKey } = req.body;
@@ -141,63 +80,78 @@ exports.completeSignup = async (req, res, next) => {
         });
     }
 
-    if (!userValidator.validateDataUrl(dataUrl)) {
-        return res.json({
-            success: false,
-            msg: "Invalid data url"
-        })
-    }
+    // if (!userValidator.validateDataUrl(dataUrl)) {
+    //     return res.json({
+    //         success: false,
+    //         msg: "Invalid data url"
+    //     })
+    // }
     
-    const emailExists = await User.findOne({ email: email });
-    if (emailExists) {
+    const existingEmail = await User.findOne({ email: email });
+    if (userValidator.validateExistingUser(existingEmail)) {
         return res.json({
             success: false,
             msg: 'Email already in use'
         })
     }
 
-    const usernameExists = await User.findOne({ username: username })
+    const existingUsername = await User.findOne({ username: username })
 
-    if (usernameExists) {
+    if (userValidator.validateExistingUser(existingUsername)) {
         return res.json({
             success: false,
             msg: 'Username already in use'
         })
     }
 
-    const filename = await saveSignature(dataUrl, username);
+    // const filename = await saveSignature(dataUrl, username);
 
-    let newUser = new User({
-        username: username,
-        email: email,
-        encryptedEnvelope: encryptedEnvelope,
-        authTag: authTag,
-        clientPublicKey: clientPublicKey,
-        oprfKey: oprfKey,
-        imgName: filename,
-        imgVerifier: imgVerifier
-    });
+    // let newUser = new User({
+    //     username: username,
+    //     email: email,
+    //     encryptedEnvelope: encryptedEnvelope,
+    //     authTag: authTag,
+    //     clientPublicKey: clientPublicKey,
+    //     oprfKey: oprfKey,
+    //     imgName: filename,
+    //     imgVerifier: imgVerifier
+    // });
     
-    const dirPath = `./uploads/users/${username}`;
+    // const dirPath = `./uploads/users/${username}`;
 
-    User.create(newUser, (err, user) => {
-        if (err) {
-            rimraf(dirPath, { rm: '-rf' }, (err) => {
-                if (err) console.error('Error occurred during directory deletion:', err);
-                else console.log(`Directory ${dirPath} deleted successfully`);
-            });
-            return res.json({
-                success: false,
-                msg: err
-            });
-        } else {
-            return res.json({
-                success: true,
-                msg: "User created successfully!"
-            })
-        }
+    const filter = { username: username, email: email };
+    const userUpdate = { encryptedEnvelope: encryptedEnvelope, authTag: authTag, clientPublicKey: clientPublicKey };
+    try {
+        const newUser = await User.findOneAndUpdate(filter, userUpdate, { upsert: false, new: false });
+        return res.json({
+            success: true,
+            msg: "User created successfully!"
+        })   
+      } catch (err) {
+        //Handle error
+        return res.json({
+            success: false,
+            msg: err
+        });    
+    }
+    // User.create(newUser, (err, user) => {
+    //     if (err) {
+    //         // rimraf(dirPath, { rm: '-rf' }, (err) => {
+    //         //     if (err) console.error('Error occurred during directory deletion:', err);
+    //         //     else console.log(`Directory ${dirPath} deleted successfully`);
+    //         // });
+    //         return res.json({
+    //             success: false,
+    //             msg: err
+    //         });
+    //     } else {
+    //         return res.json({
+    //             success: true,
+    //             msg: "User created successfully!"
+    //         })
+    //     }
 
-    });
+    // });
 };
 
 exports.startAuthenticate = async (req, res, next) => {
@@ -207,18 +161,19 @@ exports.startAuthenticate = async (req, res, next) => {
         if (!user) {
             return res.json({
                 success: false,
-                msg: "Wrong username or password or image and passcode"
+                msg: "Wrong username or password"
             });
         } 
-        if (user.imgVerifier != imgVerifier) {
-            return res.json({
-                success: false,
-                msg: "Wrong username or password or image and passcode"
-            });
-        }
+        // if (user.imgVerifier != imgVerifier) {
+        //     return res.json({
+        //         success: false,
+        //         msg: "Wrong username or password or image and passcode"
+        //     });
+        // }
         return res.json({
             success: true,
             oprfKey: user.oprfKey,
+            salt: user.salt,
             encryptedEnvelope: user.encryptedEnvelope,
             authTag: user.authTag
         });
@@ -245,13 +200,14 @@ exports.vImgIdentify = async (req, res, next) => {
 
 exports.authenticate = async (req, res, next) => {
     const { username, answer, dataUrl, imgVerifier } = req.body;
+    console.log(req.body);
     User.getUserByUsername(username, async (err, user) => {
         if (err) throw err;
 
         if (!user) {
             return res.json({
                 success: false,
-                msg: "Wrong username or password or image and passcode"
+                msg: "Wrong username and password"
             });
         }
 
@@ -297,7 +253,7 @@ exports.authenticate = async (req, res, next) => {
                 console.log(`unable to decrypt: ${error}`);
                 return res.json({
                     success: false,
-                    msg: "Wrong username or password or image and passcode"
+                    msg: "Wrong username and password"
                 });
             }
         });
