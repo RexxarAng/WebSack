@@ -64,6 +64,7 @@ function oprfOutput(password: any, oprfKey: any, salt: any) {
     const hashedPassword = createHash('sha256').update(password).digest();      // Password is hashed
     const hashedPasswordBuffer = Buffer.from(hashedPassword);                  
     const oprfKeyBuffer = Buffer.from(oprfKey, 'hex');          
+    console.log(`Password Buffer Length: ${hashedPasswordBuffer.length}}`)
     // Establish point of reference for verification on curve for given password hash                
     const passwordPoint = curve.curve.pointFromX(hashedPasswordBuffer, true); 
     const scalar = new BN(oprfKeyBuffer);
@@ -72,6 +73,7 @@ function oprfOutput(password: any, oprfKey: any, salt: any) {
     const derivedKey = hIterFunction(rwdKey, salt);
     return derivedKey; 
 }
+
 
 /**
  * Proposed in "OPAQUE: An Asymmetric PAKE Protocol Secure Against Pre-Computation Attacks",
