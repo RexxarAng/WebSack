@@ -78,34 +78,38 @@ export class SignupComponent {
       this.authService.startSignup(identifier).subscribe((response: any) => {
         console.log(response);
         if(response.success) {
-          const output = opaque.generateEncryptedEnvelopeAndKeyPair(this.formData.password, response.oprfKey, response.serverPublicKey, response.salt);
-
-          // Send the registration data to the server
-          var userData = {
-            username: this.formData.username,
-            email: this.formData.email,
-            encryptedEnvelope: output.encryptedEnvelope,
-            authTag: output.authTag,
-            clientPublicKey: output.clientPublicKey,
-            // dataUrl: this.signatureDataUrl,
-            // imgVerifier: eImgVfier,
-            // oprfKey: response.oprfKey
-          };
-          this.authService.completeSignup(userData)
-          .subscribe((response: any) => {
-            console.log(response)
-            if (response.success) {
-              this.serverProof = response.serverProof;
-              this.modalService.open(this.signupSuccessModal);
-              setTimeout(() => {
-                this.modalService.dismissAll();
-                this.router.navigate(['login']);
-              }, 5000);  //5s
-            } else {
-              this.message = response.msg;
-              this.modalService.open(this.signupFailureModal);
-            }
-          });
+          try {
+            const output = opaque.generateEncryptedEnvelopeAndKeyPair(this.formData.password, response.oprfKey, response.serverPublicKey, response.salt);
+             // Send the registration data to the server
+            var userData = {
+              username: this.formData.username,
+              email: this.formData.email,
+              encryptedEnvelope: output.encryptedEnvelope,
+              authTag: output.authTag,
+              clientPublicKey: output.clientPublicKey,
+              // dataUrl: this.signatureDataUrl,
+              // imgVerifier: eImgVfier,
+              // oprfKey: response.oprfKey
+            };
+            this.authService.completeSignup(userData)
+            .subscribe((response: any) => {
+              console.log(response)
+              if (response.success) {
+                this.serverProof = response.serverProof;
+                this.modalService.open(this.signupSuccessModal);
+                setTimeout(() => {
+                  this.modalService.dismissAll();
+                  this.router.navigate(['login']);
+                }, 5000);  //5s
+              } else {
+                this.message = response.msg;
+                this.modalService.open(this.signupFailureModal);
+              }
+            });
+          } catch(err) {
+            this.message = "Invalid password. Please try another password";
+            this.modalService.open(this.signupFailureModal);
+          }
         } else {
           this.message = response.msg;
           this.modalService.open(this.signupFailureModal);
