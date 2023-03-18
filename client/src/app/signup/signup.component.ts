@@ -3,8 +3,6 @@ import { NgForm } from '@angular/forms'
 import { AuthService } from '../services/auth.service'
 import { Router } from '@angular/router'
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
-import { SignaturepadComponent } from '../signaturepad/signaturepad.component';
-import { saveAs } from 'file-saver';
 import { GotchaService } from '@websack/gotcha';
 import { UserService } from '../services/user.service';
 import * as opaque from '../opaque/opaque';
