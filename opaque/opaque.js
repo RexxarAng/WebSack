@@ -35,10 +35,10 @@ module.exports = {
     "serverOprfKey": serverOprfKey
 }
 
-module.exports.generateOPRFKey = function(username) {
+module.exports.generateOPRFKey = function(username, salt) {
     console.log(username);
     // Derive a user-specific key from the server's master OPRF key and the username
-    const userOPRFKey = crypto.createHmac('sha256', serverOPRFKey).update(username).digest();
+    const userOPRFKey = crypto.createHmac('sha256', serverOPRFKey).update(username + salt).digest();
     // Convert the user-specific key to a BigInt
     const scalar = BigInt(`0x${userOPRFKey.toString('hex')}`);
     // Ensure the scalar is in the range [1, n-1]
@@ -106,3 +106,5 @@ verifySignature = async function(data, signature, key) {
     isValid = curve.keyFromPublic(key, 'hex').verify(data, signatureBuffer);
     return isValid;
 }
+
+

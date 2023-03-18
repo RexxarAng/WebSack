@@ -61,7 +61,7 @@ exports.startSignup = async (req, res, next) => {
 
     // In event of registration error, this allow us to update the user's oprfKey and serverPublicKey
     const userFilter = { username: req.body.username, email: req.body.email };
-    const oprfKey = Opaque.generateOPRFKey(req.body.username)
+    const oprfKey = Opaque.generateOPRFKey(req.body.username, Opaque.genSalt())
     const userUpdate = { oprfKey: oprfKey, serverPublicKey: keyPair.publicKey, salt: Opaque.genSalt() };
     const newUser = await User.findOneAndUpdate(userFilter, userUpdate, { upsert: true, new: true });
 
