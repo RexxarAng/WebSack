@@ -9,8 +9,11 @@
 
 Sending a password over the network in plaintext or hashed, which can be intercepted and stolen by attackers, is a common practice in traditional password authentication schemes.
 
-The proposed solution includes OPAQUE Cryptography which uses a variety of cryptographic algorithms to mask the password and safeguard it during the authentication process to mitigate this problem.
+The proposed solution PEARL (Privacy-Enhanced Authentication with randomized OPRF Login) includes OPAQUE Cryptography which uses a variety of cryptographic algorithms to mask the password and safeguard it during the authentication process to mitigate this problem.
 
+Click the image below to watch our video demonstration for this project.
+
+[![PEARL Demonstration Video](http://img.youtube.com/vi/lFynKTts62c/0.jpg)](https://www.youtube.com/watch?v=lFynKTts62c&ab_channel=YeongJingKang)
 
 ## Technologies
 Project is created with:
