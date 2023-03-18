@@ -15,7 +15,6 @@ import { ProfileComponent } from './profile/profile.component';
 import { GotchaModule } from '@websack/gotcha';
 import { JwtModule } from '@auth0/angular-jwt';
 import { JwtInterceptor } from './interceptors/jwt.interceptor';
-import { ResetComponent } from './reset/reset.component';
 
 export function getToken() {
   return sessionStorage.getItem('id_token');
@@ -28,8 +27,7 @@ export function getToken() {
     LoginComponent,
     SignupComponent,
     SignaturepadComponent,
-    ProfileComponent,
-    ResetComponent
+    ProfileComponent
   ],
   imports: [
     BrowserModule,

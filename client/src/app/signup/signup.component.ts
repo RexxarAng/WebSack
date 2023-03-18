@@ -67,8 +67,6 @@ export class SignupComponent {
 
   onSubmit(form: NgForm) {
     if (form.valid) {
-      // const uKey = this.gService.uKeyPrep(this.imgKey);
-      // const eImgVfier = this.gService.veHashEncrypt(this.imgVfierHash ,uKey);
       
       var identifier = {
         username: this.formData.username,
@@ -86,10 +84,7 @@ export class SignupComponent {
               email: this.formData.email,
               encryptedEnvelope: output.encryptedEnvelope,
               authTag: output.authTag,
-              clientPublicKey: output.clientPublicKey,
-              // dataUrl: this.signatureDataUrl,
-              // imgVerifier: eImgVfier,
-              // oprfKey: response.oprfKey
+              clientPublicKey: output.clientPublicKey
             };
             this.authService.completeSignup(userData)
             .subscribe((response: any) => {

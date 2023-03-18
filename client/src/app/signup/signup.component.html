@@ -51,54 +51,8 @@
                                 </div>
                             </div>
                         </div>
-                        <!-- <div class="form-group mb-3">
-                            <div class="d-flex align-items-center">
-                                <div class="d-flex align-items-center">
-                                    <button class="btn btn-secondary mr-4" [ngClass]="{'btn-danger': !signatureDataUrl}"
-                                        (click)="showSignatureModal($event)">Add Signature</button>
-                                    <div *ngIf="!signatureDataUrl" class="text-danger ml-4">
-                                        Please add your signature
-                                    </div>
-                                    <div *ngIf="signatureDataUrl" class="text-success ml-4">
-                                        Signature Added
-                                    </div>
-                                </div>
-                            </div>
-                        </div> -->
-                        <!-- <div class="form-group mb-3">
-                            <div class="d-flex align-items-center">
-                                <div class="d-flex align-items-center">
-                                    <button class="btn btn-secondary mr-4" [ngClass]="{'btn-danger': !downloaded}"
-                                        (click)="generateAndDownloadPrivateKey($event)">Download Key</button>
-                                    <div *ngIf="!downloaded" class="text-danger ml-4">
-                                        Please download your private key
-                                    </div>
-                                    <div *ngIf="downloaded" class="text-success ml-4">
-                                        Please keep private key safe.
-                                    </div>
-                                </div>
-                            </div>
-                        </div> -->
                         <button type="submit" class="btn btn-primary">Submit</button>
                     </form>
-                    <!-- Modal template -->
-                    <!-- <ng-template #signatureModal let-modal>
-                        <div class="modal-modal">
-                            <div class="modal-header">
-                                <h4 class="modal-title">Please sign your signature</h4>
-                                <button type="button" class="close" aria-label="Close" (click)="modal.dismiss()">
-                                    <span aria-hidden="true">&times;</span>
-                                </button>
-                            </div>
-                            <div class="modal-body">
-                                <app-gotchapad (closeModalEvent)="closeModal()"
-                                    (gotchaDataEmitter)="handleGatchaData($event)"></app-gotchapad>
-                                <app-signaturepad (closeModalEvent)="closeModal()"
-                                    (signatureDataUrlEmitter)="handleSignatureDataUrl($event)"></app-signaturepad>
-                            </div>
-                        </div>
-                    </ng-template>  -->
-                    <!-- Modal template -->
                     <ng-template #signupSuccessModal let-modal>
                         <div class="modal-header">
                             <h4 class="modal-title">Sign up successful!</h4>
@@ -111,7 +65,6 @@
                             <p>Congratulations, your sign up was successful!</p>
                         </div>
                     </ng-template>
-
                     <!-- Modal template -->
                     <ng-template #signupFailureModal let-modal>
                         <div class="modal-header">

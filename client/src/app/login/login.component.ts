@@ -23,8 +23,6 @@ export class LoginComponent {
   loginError = false;
   signInData: any = {};
   signatureDataUrl: string = "";
-  imgVfierHash: string = "";
-  imgKey: string = "";
 
   constructor(
     private router: Router,
@@ -42,35 +40,12 @@ export class LoginComponent {
     this.modalService.dismissAll();
   }
 
-  // handleGotchaData(gotchaData: any) {
-  //   this.signatureDataUrl = gotchaData.dataUrl;
-  //   this.imgVfierHash = gotchaData.imgVfier;
-  //   this.imgKey = gotchaData.imgKey;
-  //   // do something with the dataURL, such as sending it to the backend
-  // }
-
   async onSubmit(form: NgForm) {
     if (form.valid) {
-       // Gotcha
       this.loginError = false;
-      // const uKey = this.gService.uKeyPrep(this.imgKey)
-      // var eImgVfier = "";
-      // let findUsername = { username: this.signInData.username }
-      // try {
-      //   const response: any = await this.authService.verifyUserImg(findUsername).toPromise();
-      //   if (!response.success || !(this.gService.vHashVerify(response.vImgVerifier,this.imgVfierHash, uKey))) {
-      //     this.loginError = true;
-      //   } else {
-      //     eImgVfier = response.vImgVerifier;
-      //   }
-      // } catch (error) {
-      //   this.loginError = true;
-      //   console.log(error);
-      // }
+
       let signInCredentials = {
         username: this.signInData.username,
-        // dataUrl: this.signatureDataUrl,
-        // imgVerifier: eImgVfier
       }
       try {
         const response: any = await this.authService.startAuthenticate(signInCredentials).toPromise();
@@ -82,8 +57,6 @@ export class LoginComponent {
           let credentials = {
             username: this.signInData.username,
             answer: encryptedData
-            // dataUrl: this.signatureDataUrl,
-            // imgVerifier: eImgVfier
           }
           const data: any = await this.authService.authenticateUser(credentials).toPromise();
           console.log(data);
