@@ -9,7 +9,6 @@ import { SignupComponent } from './signup/signup.component';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { HttpClientModule, HTTP_INTERCEPTORS } from '@angular/common/http';
 import { environment } from './environments/environment';
-import { SignaturepadComponent } from './signaturepad/signaturepad.component';
 import { AuthService } from "./services/auth.service";
 import { ProfileComponent } from './profile/profile.component';
 import { GotchaModule } from '@websack/gotcha';
@@ -26,7 +25,6 @@ export function getToken() {
     HomeComponent,
     LoginComponent,
     SignupComponent,
-    SignaturepadComponent,
     ProfileComponent
   ],
   imports: [

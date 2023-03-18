@@ -3,7 +3,6 @@ import { NgForm } from '@angular/forms';
 import { Router } from '@angular/router';
 import { AuthService } from '../services/auth.service';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
-import { SignaturepadComponent } from '../signaturepad/signaturepad.component'
 import * as opaque from '../opaque/opaque';
 // import * as opaque from '../opaque/opaque-obfuscated.js';
 
