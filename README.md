@@ -33,7 +33,6 @@ To build the frontend:
 $ cd ../WebSack/client
 $ npm install
 $ npm run watch
-
 ```
 
 To run the webserver locally:
@@ -42,7 +41,6 @@ To run the webserver locally:
 $ cd ../WebSack
 $ npm install
 $ node server_local.js
-
 ```
 
 
