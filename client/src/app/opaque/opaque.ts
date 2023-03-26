@@ -16,15 +16,15 @@ public key and client's private key using password and oprf key.
 Finally returns the encrypted envelope, authTag used to encrypt the envelope and the client's public key
 */
 export function generateEncryptedEnvelopeAndKeyPair(password: string, oprfKey: string, serverPublicKey: string, salt: any) {
-    const rwdKey = oprfOutput(password, oprfKey, salt);
+    const dKey = oprfOutput(password, oprfKey, salt);
     const keyPair = generateKeyPair();
     const envelope = {
       clientPrivateKey: keyPair.privateKey,
       serverPublicKey: serverPublicKey,
     }
-    const encryptedOutput = encryptEnvelope(envelope, rwdKey);
+    const encryptedOutput = encryptEnvelope(envelope, dKey);
     console.log(`encryptedEnvelope: ${encryptedOutput.encryptedEnvelope}`);
-    console.log(`rwdKey: ${rwdKey}`);
+    console.log(`dKey: ${dKey}`);
     return { "encryptedEnvelope": encryptedOutput.encryptedEnvelope, "authTag": encryptedOutput.authTag, "clientPublicKey": keyPair.publicKey };
 }
 
@@ -36,17 +36,17 @@ with the client's private key before encrypting it with the server's public key.
 Finally returns the encrypted data (also known as the authentication message)
 */
 export async function handleAuthentication(password: string, oprfKey: string, encryptedEnvelope: string, authTag: string, salt: any) {
-    const rwdKey = oprfOutput(password, oprfKey, salt)
-    console.log(`rwdKey: ${rwdKey}`)
+    const dKey = oprfOutput(password, oprfKey, salt)
+    console.log(`dKey: ${dKey}`)
     console.log(`EncryptedEnvelope: ${encryptedEnvelope}`);
-    const envelope = decryptEnvelope(encryptedEnvelope, authTag, rwdKey);
+    const envelope = decryptEnvelope(encryptedEnvelope, authTag, dKey);
     console.log(`Envelope: ${envelope.serverPublicKey}`);
     const currentTime = new Date().toISOString();
     console.log(currentTime);
     const signedTimeObject = await signData(currentTime, envelope.clientPrivateKey);
     console.log(signedTimeObject);
     const encryptedData = await encryptData(JSON.stringify(signedTimeObject), envelope.serverPublicKey);
-    console.log(`rwdKey: ${rwdKey}`);
+    console.log(`dKey: ${dKey}`);
     console.log(`encryptedData: ${encryptedData}`);
     return encryptedData;
 }
@@ -94,21 +94,22 @@ function hIterFunction(rwdKey: any, salt: any) {
     const passwordBuffer = Buffer.from(rwdKey);
     
     // Hash the initial key using salt as the IV
-    derivedKey = pbkdf2Sync(passwordBuffer, salt, iterations, keyLen, 'sha256');
+    derivedKey = pbkdf2Sync(passwordBuffer, salt, iterations, keyLen, 'sha512');
   
     // Iterate the hash function until a halting condition is met
     while (true) {
       // Compute the hash of the previous derived key concatenated with the salt
       prevDerivedKey = derivedKey;
-      derivedKey = pbkdf2Sync(prevDerivedKey, salt, iterations, keyLen, 'sha256');
+      derivedKey = pbkdf2Sync(prevDerivedKey, salt, iterations, keyLen, 'sha512');
   
-      // Check if the derived key has reached a halting condition
-      if (isHaltingConditionMet(derivedKey)) {
+      // Check if the derived key has reached a halting condition, and at least 210k iterations from standards.
+      if (isHaltingConditionMet(derivedKey) && iterations > 1219) {
         break;
       }
       
       // Increment the iteration count
       iterations++;
+      console.log("Iterations:" + iterations);
     }
     console.log("Iterations:" + iterations);
     console.log("Derived Key:" + derivedKey.toString());
